@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.folder-container {
+    margin-left: 20px;
+  }
+  
+  .folder {
+    cursor: pointer;
+    font-weight: bold;
+    margin: 5px 0;
+  }
+  
+  .folder-content {
+    margin-left: 15px;
+  }
+  
+  .file {
+    cursor: pointer;
+    margin-left: 10px;
+  }
+  
+  .hed{
+    font-size: 30px;
+    font-family: 'Times New Roman', Times, serif;
+  }
+.nav{
+    background-color: antiquewhite;
+    width: 100%;
+    height: 60px;
+    display: flex;
+    padding: 10px;
+    justify-content: space-between;
+
+}
+
+.inputdev{
+    width: 30%;
+}
+
+.pathIn{
+    height: 100%;
+    width: 90%;
+}
+
+.right-1{
+    width: 80%;
+}
+
+.gobtn{
+    height: 100%;
+    width: 40px;
+    color: aliceblue;
+    background-color: brown;
+}
+
+.output{
+    padding: 20px;
+    color: white;
+    overflow-x: scroll;
+    width: 100%;
+    min-height: 1040px;
+}
+
+.mainbody{
+    background-color: aqua;
+    display: flex;
+}
+
+
+.rundev{
+    display: flex;
+    flex-direction: column;
+    color: aliceblue;
+    width: max-content;
+}
+
+.run-btn{
+    margin-left: 20px;
+    border: white solid 1px;
+    padding-left: 10px;
+    border-radius: 5px;
+    padding-right: 10px;
+    color: burlywood;
+}
+
+.ter-tit{
+    color: yellowgreen;
+}
+
+/* .ter{
+    width: 1000px;
+} */
+
+.left{
+    padding: 20px;
+    background-color: burlywood;
+    min-width: 300px;
+    min-height: 90vh;
+    overflow: scroll;
+}
+
+.right{
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.854);
+    width: 100%;
+    justify-content: space-between;
+    display: flex;
+}
