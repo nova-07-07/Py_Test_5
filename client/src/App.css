@@ -27,7 +27,7 @@
     font-family: 'Times New Roman', Times, serif;
   }
 .nav{
-    background-color: antiquewhite;
+    background-color: rgba(97, 97, 97, 0.616);
     width: 100%;
     height: 60px;
     display: flex;
@@ -96,7 +96,7 @@
 
 .left{
     padding: 20px;
-    background-color: burlywood;
+    background-color: rgba(255, 233, 205, 0.801);
     min-width: 300px;
     min-height: 90vh;
     overflow: scroll;

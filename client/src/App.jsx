@@ -4,7 +4,7 @@ import { useState } from "react";
 import FolderView from "./FolderView";
 
 function App() {
-  const [path, setPath] = useState("D:\\git\\task-4-py\\uploads");
+  const [path, setPath] = useState("");
   const [folderData, setFolderData] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [output, setOutput] = useState("");
