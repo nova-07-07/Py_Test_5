@@ -38,7 +38,7 @@ function App() {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/execute",
+        "http://localhost:5000/execute-script",
         { file_path: selectedFile.path },
         { headers: { "Content-Type": "application/json" } }
       );
@@ -55,7 +55,7 @@ function App() {
   return (
     <>
       <div className="nav">
-        <h1 className="hed">executePythonFile</h1>
+        <h1 className="hed">Execute Python File</h1>
         <div className="inputdev">
           <input
             type="text"

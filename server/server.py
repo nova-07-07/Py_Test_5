@@ -3,9 +3,13 @@ from flask_cors import CORS
 import tempfile
 import os
 import subprocess
+import shutil
+from urllib.parse import urlparse
 
 app = Flask(__name__)
 CORS(app)
+BAT_FILE_PATH = os.path.abspath("run_python_file.bat")
+
 def get_folder_structure(path):
     if not os.path.exists(path):
         return {"error": "Path does not exist"}
@@ -46,7 +50,9 @@ def get_folder_structure(path):
     }
 
 def clone_git_repo(git_url):
-    temp_dir = tempfile.mkdtemp()  
+    repo_name = os.path.basename(urlparse(git_url).path).replace(".git", "")
+    temp_dir = os.path.join(tempfile.gettempdir(), repo_name)
+    
     try:
         subprocess.run(["git", "clone", "--depth", "1", git_url, temp_dir], check=True)
         return temp_dir
@@ -77,7 +83,22 @@ def execute_file():
     if not os.path.exists(file_path) or not file_path.endswith(".py"):
         return jsonify({"error": "Invalid file path"})
     try:
-        result = subprocess.run(["python", file_path], capture_output=True, text=True)
+        result = subprocess.run(["run_python.bat", file_path], capture_output=True, text=True, shell=True)
+        return jsonify({"output": result.stdout, "error": result.stderr})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+
+@app.route("/execute-script", methods=["POST"])
+def execute_file_script():
+    data = request.json
+    file_path = data.get("file_path")
+
+    if not os.path.exists(file_path) or not file_path.endswith(".py"):
+        return jsonify({"error": "Invalid file path"})
+
+    try:
+        result = subprocess.run([BAT_FILE_PATH, file_path], capture_output=True, text=True, shell=True)
         return jsonify({"output": result.stdout, "error": result.stderr})
     except Exception as e:
         return jsonify({"error": str(e)})

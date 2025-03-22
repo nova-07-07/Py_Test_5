@@ -10,7 +10,7 @@ function FolderView({ folderData, setSelectedFile }) {
   return (
     <div style={{ cursor: "pointer", fontSize: "20px" }}>
       <h3 onClick={() => setOpen(!isOpen)} style={{ fontSize: "22px" }}>
-        {isOpen ? "📂🔽" : "📂▶"} {folderData.name}
+        {"📂"} {folderData.name}
       </h3>
       {isOpen && (
         <ul style={{ marginLeft: "25px" }}>
