@@ -28,7 +28,7 @@
   }
 .nav{
     background-color: rgba(97, 97, 97, 0.616);
-    width: 100%;
+    width: 100hv;
     height: 60px;
     display: flex;
     padding: 10px;
@@ -37,20 +37,28 @@
 }
 
 .inputdev{
-    width: 30%;
+    display: flex;
+    flex-direction: row;
+    width: max-content;
 }
 
 .pathIn{
+    padding-left: 10px;
     height: 100%;
-    width: 90%;
+    width: 400px;
+    border-radius: 10px;
 }
 
 .right-1{
-    width: 80%;
+    width: 100%;
 }
+
 
 .gobtn{
     height: 100%;
+    border-radius: 5px;
+    border-top-right-radius: 50%;
+    border-bottom-right-radius: 50% ;
     width: 40px;
     color: aliceblue;
     background-color: brown;
@@ -60,7 +68,7 @@
     padding: 20px;
     color: white;
     overflow-x: scroll;
-    width: 100%;
+    width: 80%;
     min-height: 1040px;
 }
 
@@ -69,6 +77,11 @@
     display: flex;
 }
 
+.rund{
+    color: white;
+    display: flex;
+    justify-content: end;
+}
 
 .rundev{
     display: flex;
@@ -82,7 +95,7 @@
     border: white solid 1px;
     padding-left: 10px;
     border-radius: 5px;
-    padding-right: 10px;
+    padding-right: 10px; 
     color: burlywood;
 }
 
@@ -90,13 +103,13 @@
     color: yellowgreen;
 }
 
-/* .ter{
-    width: 1000px;
-} */
+.ter{
+    padding: 0px;
+}
 
 .left{
     padding: 20px;
-    background-color: rgba(255, 233, 205, 0.801);
+    background-color: rgb(211, 205, 197);
     min-width: 300px;
     min-height: 90vh;
     overflow: scroll;

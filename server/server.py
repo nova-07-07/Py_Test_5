@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import tempfile
 import os
 import subprocess
 import shutil
@@ -8,7 +7,13 @@ from urllib.parse import urlparse
 
 app = Flask(__name__)
 CORS(app)
+
+# Define the directory where repositories will be stored
+REPO_DIR = os.path.abspath("./git_repos")
 BAT_FILE_PATH = os.path.abspath("run_python_file.bat")
+
+# Ensure the repository directory exists
+os.makedirs(REPO_DIR, exist_ok=True)
 
 def get_folder_structure(path):
     if not os.path.exists(path):
@@ -49,16 +54,23 @@ def get_folder_structure(path):
         "items": folder_items
     }
 
-def clone_git_repo(git_url):
+def clone_or_update_repo(git_url):
     repo_name = os.path.basename(urlparse(git_url).path).replace(".git", "")
-    temp_dir = os.path.join(tempfile.gettempdir(), repo_name)
-    
-    try:
-        subprocess.run(["git", "clone", "--depth", "1", git_url, temp_dir], check=True)
-        return temp_dir
-    except subprocess.CalledProcessError:
-        shutil.rmtree(temp_dir)  
-        return None
+    repo_path = os.path.join(REPO_DIR, repo_name)
+
+    if os.path.exists(repo_path):  # If repo already exists, do a git pull
+        try:
+            subprocess.run(["git", "-C", repo_path, "pull"], check=True)
+            return repo_path
+        except subprocess.CalledProcessError:
+            return None
+    else:  # Clone new repo
+        try:
+            subprocess.run(["git", "clone", "--depth", "1", git_url, repo_path], check=True)
+            return repo_path
+        except subprocess.CalledProcessError:
+            shutil.rmtree(repo_path, ignore_errors=True)
+            return None
 
 @app.route("/get-folder", methods=["GET", "POST"])
 def get_folder():
@@ -69,9 +81,9 @@ def get_folder():
         path = data.get("path") 
 
     if path.startswith("https://github.com/"):
-        cloned_repo_path = clone_git_repo(path)
+        cloned_repo_path = clone_or_update_repo(path)
         if not cloned_repo_path:
-            return jsonify({"error": "Failed to clone repository"})
+            return jsonify({"error": "Failed to clone or update repository"})
         path = cloned_repo_path 
 
     return jsonify(get_folder_structure(path))
@@ -96,9 +108,10 @@ def execute_file_script():
 
     if not os.path.exists(file_path) or not file_path.endswith(".py"):
         return jsonify({"error": "Invalid file path"})
-
+    print("==========================")
     try:
-        result = subprocess.run([BAT_FILE_PATH, file_path], capture_output=True, text=True, shell=True)
+        result = subprocess.run([BAT_FILE_PATH, file_path], capture_output=True, text=True , shell=True)
+       
         return jsonify({"output": result.stdout, "error": result.stderr})
     except Exception as e:
         return jsonify({"error": str(e)})

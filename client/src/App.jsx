@@ -79,15 +79,7 @@ function App() {
           {selectedFile ? (
             <>
               <div className="right-1">
-                <div className="ter">
-                  <h2 className="ter-tit">Output</h2>
-                  <pre className="output">
-                    {loading ? "Running..." : output}
-                  </pre>
-                </div>
-              </div>
-              <div className="rundev">
-                <p>
+              <p className="rund">
                   <b>
                     {selectedFile.filename}
                     <button
@@ -99,6 +91,15 @@ function App() {
                     </button>
                   </b>
                 </p>
+                <div className="ter">
+                  <h2 className="ter-tit">Output</h2>
+                  <pre className="output">
+                    {loading ? "Running..." : output}
+                  </pre>
+                </div>
+              </div>
+              <div className="rundev">
+                
               </div>
             </>
           ) : (
