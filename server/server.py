@@ -108,7 +108,6 @@ def execute_file_script():
 
     if not os.path.exists(file_path) or not file_path.endswith(".py"):
         return jsonify({"error": "Invalid file path"})
-    print("==========================")
     try:
         result = subprocess.run([BAT_FILE_PATH, file_path], capture_output=True, text=True , shell=True)
        
