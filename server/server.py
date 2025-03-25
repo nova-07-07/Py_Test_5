@@ -8,11 +8,9 @@ from urllib.parse import urlparse
 app = Flask(__name__)
 CORS(app)
 
-# Define the directory where repositories will be stored
 REPO_DIR = os.path.abspath("./git_repos")
 BAT_FILE_PATH = os.path.abspath("run_python_file.bat")
 
-# Ensure the repository directory exists
 os.makedirs(REPO_DIR, exist_ok=True)
 
 def get_folder_structure(path):
@@ -58,7 +56,7 @@ def clone_or_update_repo(git_url):
     repo_name = os.path.basename(urlparse(git_url).path).replace(".git", "")
     repo_path = os.path.join(REPO_DIR, repo_name)
 
-    if os.path.exists(repo_path):  # If repo already exists, do a git pull
+    if os.path.exists(repo_path): 
         try:
             subprocess.run(["git", "-C", repo_path, "pull"], check=True)
             return repo_path
@@ -105,12 +103,22 @@ def execute_file():
 def execute_file_script():
     data = request.json
     file_path = data.get("file_path")
+    env_path = data.get("env_path")
 
     if not os.path.exists(file_path) or not file_path.endswith(".py"):
         return jsonify({"error": "Invalid file path"})
+    
+    if not os.path.exists(env_path):
+        return jsonify({"error": "Invalid virtual environment path"})
+
     try:
-        result = subprocess.run([BAT_FILE_PATH, file_path], capture_output=True, text=True , shell=True)
-       
+        result = subprocess.run(
+            [BAT_FILE_PATH, file_path, env_path],
+            capture_output=True,
+            text=True,
+            shell=True
+        )
+
         return jsonify({"output": result.stdout, "error": result.stderr})
     except Exception as e:
         return jsonify({"error": str(e)})

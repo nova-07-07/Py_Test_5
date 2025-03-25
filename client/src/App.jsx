@@ -2,15 +2,17 @@ import "./App.css";
 import axios from "axios";
 import { useState, useRef } from "react";
 import FolderView from "./FolderView";
+import VirtualEnvInput from "./VirtualEnvInput";
 
 function App() {
-  const [path, setPath] = useState("");
+  const [path, setPath] = useState("https://github.com/praveen-16-16/py_test_05");
   const [folderData, setFolderData] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [output, setOutput] = useState("");
   const [loading, setLoading] = useState(false);
   const [flode, setFlode] = useState(false);
-
+  const [getenv , setGetEnv] = useState(false);
+  const [envpath , setEnvPath] = useState(false);
   const cancelTokenSource = useRef(null);
 
   const fetchFolders = async () => {
@@ -33,35 +35,46 @@ function App() {
     setFlode(false);
   };
 
+  
   const executePythonFile = async () => {
     if (!selectedFile?.path) {
       setOutput("No file selected.");
       return;
     }
-
+  
+    // Show VirtualEnvInput first
+    setGetEnv(true);
+  };
+  
+  // This function will be triggered after the virtual environment path is set
+  const startExecution = async (envPath) => {
+    if (!envPath) {
+      setOutput("No virtual environment path provided.");
+      return;
+    }
+  
     if (loading) {
       cancelTokenSource.current?.cancel("Execution stopped by user.");
       setLoading(false);
       setOutput("Execution stopped.");
       return;
     }
-
+  
     setLoading(true);
     setOutput("");
-
+  
     cancelTokenSource.current = axios.CancelToken.source();
-    
-    console.log(cancelTokenSource.current);
+  
     try {
       const response = await axios.post(
         "http://localhost:5000/execute-script",
-        { file_path: selectedFile.path },
+        { file_path: selectedFile.path, env_path: envPath },
         {
           headers: { "Content-Type": "application/json" },
           cancelToken: cancelTokenSource.current.token,
         }
       );
-
+  
       setOutput(response.data.output || response.data.error || "No output");
     } catch (error) {
       if (axios.isCancel(error)) {
@@ -74,10 +87,14 @@ function App() {
       setLoading(false);
     }
   };
+  
+  
 
   return (
     <>
-      <div className="nav">
+   <div style={{ opacity: getenv ? 0.2 : 1}}>
+      <div className="nav" >
+        
         <h1 className="hed">Test Execution GUI</h1>
         <div className="inputdev">
           <input
@@ -91,6 +108,7 @@ function App() {
             <b>Go</b>
           </button>
         </div>
+        
         <p className="rund">
           <b>
             {selectedFile?.filename || "No file selected"}
@@ -104,6 +122,7 @@ function App() {
           </b>
         </p>
       </div>
+      
       <div className="mainbody">
         <div className="left">
           {flode ? <h1>Loading...</h1> : (
@@ -115,7 +134,7 @@ function App() {
             <div className="right-1">
               <h2 className="ter-tit">Output</h2>
               <pre className="output">
-                {loading ? "Running..." : output}
+                {loading ? "Running..." :  output}
               </pre>
             </div>
           ) : (
@@ -123,6 +142,9 @@ function App() {
           )}
         </div>
       </div>
+    </div>
+    
+    {getenv && <VirtualEnvInput setEnvPath={setEnvPath} setGetEnv={setGetEnv} startExecution={startExecution} />}
     </>
   );
 }

@@ -1,34 +1,27 @@
 @echo off
 
-REM @Check if a Python script is provided
 IF "%~1"=="" (
-    echo Usage: run_python_file.bat "<python_script>"
+    echo Usage: run_python_file.bat "<python_script>" "<env_path>"
     exit /b
 )
 
-@REM  Define Virtual Environment Directory
-set ENV_DIR=venv
+set ENV_DIR=%~2
 
-@REM Check if Virtual Environment Exists
-if not exist %ENV_DIR% (
-    echo Creating virtual environment...
-    python -m venv %ENV_DIR%
+if not exist "%ENV_DIR%" (
+    echo Virtual environment not found at %ENV_DIR%
+    exit /b
 )
 
-@REM Activate the Virtual Environment
-call %ENV_DIR%\Scripts\activate.bat
+echo ----------------ENV_DIR----------------
+echo  %ENV_DIR%
+echo ---------------------------------------
 
-@REM Install Pytest
+call "%ENV_DIR%\Scripts\activate.bat"
+
 pip install pytest
 
-@REM Run the Python Script with Pytest
 echo Running script pytest:
 pytest %1 -s -v
 
-@REM  Run the Script Normally
-@REM echo Running script normally:
-@REM python %1
-
-@REM Deactivate Virtual Environment
 echo Deactivating virtual environment...
-call %ENV_DIR%\Scripts\deactivate
+call "%ENV_DIR%\Scripts\deactivate.bat"
