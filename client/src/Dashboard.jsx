@@ -5,7 +5,7 @@ import FolderView from "./FolderView";
 import VirtualEnvInput from "./VirtualEnvInput";
 
 function Dashboard() {
-  const [path, setPath] = useState("https://github.com/praveen-16-16/py_test_05");
+  const [path, setPath] = useState("");
   const [folderData, setFolderData] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [output, setOutput] = useState("");
@@ -20,19 +20,32 @@ function Dashboard() {
       alert("Please enter a valid path.");
       return;
     }
+
     setOutput("");
     setFlode(true);
-    const token = localStorage.getItem("token")
+    const token = localStorage.getItem("token");
+
     try {
       const response = await axios.get(
         `http://localhost:5000/get-folder?path=${encodeURIComponent(path)}`,
-        {headers:{Authorization:`Bearer ${token}`}}
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
+
       setFolderData(response.data);
     } catch (error) {
       console.error("Error fetching folders:", error);
-      setFolderData(null);
+
+      if (error.response?.status === 401) {
+        alert("Unauthorized access! Please log in again.");
+        localStorage.removeItem("token"); // Remove invalid token
+        setFolderData("UNAUTHORIZED");
+      } else {
+        setFolderData(null);
+      }
     }
+
     setFlode(false);
   };
 
@@ -55,8 +68,8 @@ function Dashboard() {
       return;
     }
 
-    setEnvPath(envPath); 
-    setGetEnv(false); 
+    setEnvPath(envPath);
+    setGetEnv(false);
 
     if (loading) {
       cancelTokenSource.current?.cancel("Execution stopped by user.");
@@ -69,12 +82,12 @@ function Dashboard() {
     setOutput("");
 
     cancelTokenSource.current = axios.CancelToken.source();
-    
+
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
         "http://localhost:5000/execute-script",
-        { file_path: selectedFile.path, env_path: envPath }, 
+        { file_path: selectedFile.path, env_path: envPath },
         {
           headers: {
             "Content-Type": "application/json",
@@ -83,21 +96,27 @@ function Dashboard() {
           cancelToken: cancelTokenSource.current.token,
         }
       );
-    
+
       console.log("Execution response", response.data);
-    
       setOutput(response.data.stdout || response.data.stderr || "No output");
     } catch (error) {
       console.error("Execution error", error);
-      setOutput("Execution failed: " + (error.response?.data?.error || error.message));
-    }
-     finally {
+
+      if (error.response?.status === 401) {
+        alert("Unauthorized access! Please log in again.");
+        localStorage.removeItem("token");
+        setOutput("UNAUTHORIZED");
+      } else {
+        setOutput("Execution failed: " + (error.response?.data?.error || error.message));
+      }
+    } finally {
       setLoading(false);
     }
   };
 
   return (
-    <><div style={{ opacity: getenv ? 0.2 : 1 }} onClick={() => getenv && setGetEnv(false)}>
+    <>
+      <div style={{ opacity: getenv ? 0.2 : 1 }} onClick={() => getenv && setGetEnv(false)}>
         <div className="nav">
           <h1 className="hed">Test Execution GUI</h1>
           <div className="inputdev">
@@ -114,17 +133,12 @@ function Dashboard() {
           </div>
 
           <p className="rund">
-          <div>
-                <span
-                  className="epath"
-                  style={{ }}
-                  onClick={() => setGetEnv(true)} 
-                >
-                  Env_Path: {envpath || "Click to set"}
-                </span>
-              </div>
+            <div>
+              <span className="epath" onClick={() => setGetEnv(true)}>
+                Env_Path: {envpath || "Click to set"}
+              </span>
+            </div>
             <b>
-              
               {selectedFile?.filename || "No file selected"}
               <button
                 className="run-btn"

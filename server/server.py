@@ -163,9 +163,14 @@ def execute_file_script():
         return jsonify({"error": f"Invalid virtual environment path: {env_path}"}), 400
 
     try:
-        # Run batch file using cmd.exe /c to ensure correct execution
-        command = f'"{BAT_FILE_PATH}" "{file_path}" "{env_path}"'
-        result = subprocess.run(command, capture_output=True, text=True, shell=True)
+        result = subprocess.run(
+            [BAT_FILE_PATH, file_path, env_path],
+            capture_output=True,
+            text=True,
+            shell=True
+        )
+
+
         return jsonify({"stdout": result.stdout, "stderr": result.stderr, "return_code": result.returncode})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
