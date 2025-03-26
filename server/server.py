@@ -20,6 +20,8 @@ app.config["JWT_SECRET_KEY"] = "Test_Execution_GUI"
 
 jwt = JWTManager(app)
 
+BAT_FILE_PATH = os.path.abspath("run_python_file.bat")  
+
 users = {}
 
 @app.route("/signup", methods=["POST"])
@@ -112,7 +114,9 @@ def clone_or_update_repo(git_url):
             return None
 
 @app.route("/get-folder", methods=["GET", "POST"])
+@jwt_required()
 def get_folder():
+    path = None
     if request.method == "GET":
         path = request.args.get("path")  
     else:
@@ -141,28 +145,31 @@ def execute_file():
 
 
 @app.route("/execute-script", methods=["POST"])
+@jwt_required()
 def execute_file_script():
     data = request.json
     file_path = data.get("file_path")
     env_path = data.get("env_path")
 
+    # Convert to absolute paths
+    file_path = os.path.abspath(file_path)
+    env_path = os.path.abspath(env_path)
+
+    # Validate paths
     if not os.path.exists(file_path) or not file_path.endswith(".py"):
-        return jsonify({"error": "Invalid file path"})
-    
+        return jsonify({"error": "Invalid file path"}), 400
+
     if not os.path.exists(env_path):
-        return jsonify({"error": "Invalid virtual environment path -> " + env_path})
+        return jsonify({"error": f"Invalid virtual environment path: {env_path}"}), 400
 
     try:
-        result = subprocess.run(
-            [BAT_FILE_PATH, file_path, env_path],
-            capture_output=True,
-            text=True,
-            shell=True
-        )
-
-        return jsonify({"output": result.stdout, "error": result.stderr})
+        # Run batch file using cmd.exe /c to ensure correct execution
+        command = f'"{BAT_FILE_PATH}" "{file_path}" "{env_path}"'
+        result = subprocess.run(command, capture_output=True, text=True, shell=True)
+        return jsonify({"stdout": result.stdout, "stderr": result.stderr, "return_code": result.returncode})
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, use_reloader=True)
+

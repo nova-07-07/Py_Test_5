@@ -22,10 +22,11 @@ function Dashboard() {
     }
     setOutput("");
     setFlode(true);
-
+    const token = localStorage.getItem("token")
     try {
       const response = await axios.get(
-        `http://localhost:5000/get-folder?path=${encodeURIComponent(path)}`
+        `http://localhost:5000/get-folder?path=${encodeURIComponent(path)}`,
+        {headers:{Authorization:`Bearer ${token}`}}
       );
       setFolderData(response.data);
     } catch (error) {
@@ -68,26 +69,29 @@ function Dashboard() {
     setOutput("");
 
     cancelTokenSource.current = axios.CancelToken.source();
-
+    
     try {
+      const token = localStorage.getItem("token");
       const response = await axios.post(
         "http://localhost:5000/execute-script",
-        { file_path: selectedFile.path, env_path: envPath },
+        { file_path: selectedFile.path, env_path: envPath }, 
         {
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
           cancelToken: cancelTokenSource.current.token,
         }
       );
-
-      setOutput(response.data.output || response.data.error || "No output");
+    
+      console.log("Execution response", response.data);
+    
+      setOutput(response.data.stdout || response.data.stderr || "No output");
     } catch (error) {
-      if (axios.isCancel(error)) {
-        setOutput("Execution stopped.");
-      } else {
-        console.error("Error executing Python file:", error);
-        setOutput("Execution failed.");
-      }
-    } finally {
+      console.error("Execution error", error);
+      setOutput("Execution failed: " + (error.response?.data?.error || error.message));
+    }
+     finally {
       setLoading(false);
     }
   };
