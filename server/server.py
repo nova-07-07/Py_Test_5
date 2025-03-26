@@ -4,6 +4,7 @@ import os
 import subprocess
 import shutil
 from urllib.parse import urlparse
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 
 app = Flask(__name__)
 CORS(app)
@@ -12,6 +13,46 @@ REPO_DIR = os.path.abspath("./git_repos")
 BAT_FILE_PATH = os.path.abspath("run_python_file.bat")
 
 os.makedirs(REPO_DIR, exist_ok=True)
+
+CORS(app, supports_credentials=True, expose_headers=["Authorization"])
+
+app.config["JWT_SECRET_KEY"] = "Test_Execution_GUI"
+
+jwt = JWTManager(app)
+
+users = {}
+
+@app.route("/signup", methods=["POST"])
+def signup():
+    data = request.json
+    name = data.get("name")
+    email = data.get("email")
+    password = data.get("password")
+
+    if not email or not password or not name:
+        return jsonify({"error": "Username and password and name are required"}), 400
+
+    if email in users:
+        return jsonify({"error": "User already exists"}), 409
+
+    users[email] = {"name": name, "password": password}
+    return jsonify({"message": "User registered successfully"}), 201
+
+@app.route("/login", methods=["POST"])
+def login():
+    data = request.json
+    email = data.get("username")
+    password = data.get("password")
+
+    print(f"Received credentials: {email}, {password}")  
+
+    if email in users and users[email]["password"] == password:
+        access_token = create_access_token(identity=email)
+        print(f"Generated token: {access_token}") 
+        return jsonify({"access_token": access_token})
+
+    return jsonify({"error": "Invalid credentials"}), 401
+
 
 def get_folder_structure(path):
     if not os.path.exists(path):
@@ -109,7 +150,7 @@ def execute_file_script():
         return jsonify({"error": "Invalid file path"})
     
     if not os.path.exists(env_path):
-        return jsonify({"error": "Invalid virtual environment path"})
+        return jsonify({"error": "Invalid virtual environment path -> " + env_path})
 
     try:
         result = subprocess.run(

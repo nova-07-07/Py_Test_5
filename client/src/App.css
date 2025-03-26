@@ -33,7 +33,7 @@
     display: flex;
     padding: 10px;
     justify-content: space-between;
-
+    color: white;
 }
 
 .inputdev{
@@ -45,6 +45,7 @@
 .pathIn{
     padding-left: 10px;
     height: 100%;
+    color: black;
     width: 400px;
     border-radius: 10px;
 }
@@ -72,16 +73,30 @@
     display: flex;
 }
 
+.epath{
+    background-color: rgb(62, 91, 146);
+    height: 1000px;
+    cursor: "pointer";
+    color: "white" ;
+    padding: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-top: 10px;
+    border-radius: 10px;
+
+}
+
 .rund{
-    color: rgb(0, 0, 0);
+    color: white;
     display: flex;
+    gap: 30px;
     justify-content: end;
     align-items: center;
 }
 
 .rundev{
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     color: aliceblue;
     width: max-content;
     height: 100%;
