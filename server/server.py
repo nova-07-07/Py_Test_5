@@ -14,46 +14,7 @@ BAT_FILE_PATH = os.path.abspath("run_python_file.bat")
 
 os.makedirs(REPO_DIR, exist_ok=True)
 
-CORS(app, supports_credentials=True, expose_headers=["Authorization"])
 
-app.config["JWT_SECRET_KEY"] = "Test_Execution_GUI"
-
-jwt = JWTManager(app)
-
-BAT_FILE_PATH = os.path.abspath("run_python_file.bat")  
-
-users = {}
-
-@app.route("/signup", methods=["POST"])
-def signup():
-    data = request.json
-    name = data.get("name")
-    email = data.get("email")
-    password = data.get("password")
-
-    if not email or not password or not name:
-        return jsonify({"error": "Username and password and name are required"}), 400
-
-    if email in users:
-        return jsonify({"error": "User already exists"}), 409
-
-    users[email] = {"name": name, "password": password}
-    return jsonify({"message": "User registered successfully"}), 201
-
-@app.route("/login", methods=["POST"])
-def login():
-    data = request.json
-    email = data.get("username")
-    password = data.get("password")
-
-    print(f"Received credentials: {email}, {password}")  
-
-    if email in users and users[email]["password"] == password:
-        access_token = create_access_token(identity=email)
-        print(f"Generated token: {access_token}") 
-        return jsonify({"access_token": access_token})
-
-    return jsonify({"error": "Invalid credentials"}), 401
 
 
 def get_folder_structure(path):
@@ -114,7 +75,6 @@ def clone_or_update_repo(git_url):
             return None
 
 @app.route("/get-folder", methods=["GET", "POST"])
-@jwt_required()
 def get_folder():
     path = None
     if request.method == "GET":
@@ -145,7 +105,6 @@ def execute_file():
 
 
 @app.route("/execute-script", methods=["POST"])
-@jwt_required()
 def execute_file_script():
     data = request.json
     file_path = data.get("file_path")
