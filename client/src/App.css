@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 
+body{
+    background-color: brown;
+}
+
 .folder-container {
     margin-left: 20px;
   }
@@ -21,19 +25,21 @@
     cursor: pointer;
     margin-left: 10px;
   }
-  
+  .run_set{
+    display: flex;
+    gap: 20px;
+  }
   .hed{
-    font-size: 30px;
+    font-size: 20px;
     font-family: 'Times New Roman', Times, serif;
   }
 .nav{
-    background-color: rgba(60, 60, 60, 0.616);
     width: 100hv;
-    height: 60px;
+    height: 65px;
     display: flex;
     padding: 10px;
     justify-content: space-between;
-    color: white;
+
 }
 
 .inputdev{
@@ -86,14 +92,26 @@
 
 }
 
+.Settings{
+    background-color: rgb(189, 189, 189);
+    width: 50px;
+    height: 50px;
+    color: black;
+    font-size: 30px;
+    border-radius: 50%;
+}
+
 .rund{
     color: white;
     display: flex;
+    font-size: 20px;
     gap: 30px;
     justify-content: end;
     align-items: center;
 }
-
+.hee{
+    font-size: 15px;
+}
 .rundev{
     display: flex;
     flex-direction: row;
@@ -101,13 +119,14 @@
     width: max-content;
     height: 100%;
     padding: 20px;
+    font-size: 20px;
 }
 
 .run-btn{
     margin-left: 20px;
     border: white solid 1px;
     font-weight: bold;
-    height: 40px;
+    height: 30px;
     padding-left: 10px;
     border-radius: 5px;
     padding-right: 10px; 

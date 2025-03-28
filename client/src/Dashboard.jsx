@@ -2,7 +2,8 @@ import "./App.css";
 import axios from "axios";
 import { useState, useRef } from "react";
 import FolderView from "./FolderView";
-import VirtualEnvInput from "./VirtualEnvInput";
+import VirtualEnvInput from "./VirtualEnvInput.jsx";
+import SettingsMenu from "./SettingsMenu";
 
 function Dashboard() {
   const [path, setPath] = useState("");
@@ -132,7 +133,7 @@ function Dashboard() {
             </button>
           </div>
 
-          <p className="rund">
+          {/* <p className="rund">
             <div>
               <span className="epath" onClick={() => setGetEnv(true)}>
                 Env_Path: {envpath || "Click to set"}
@@ -148,7 +149,19 @@ function Dashboard() {
                 {loading ? "Stop" : "Run"}
               </button>
             </b>
-          </p>
+          </p> */}
+            <b className="run_set"> 
+              <span className="hee">{selectedFile?.filename || "No file selected"}</span>
+              <button
+                className="run-btn"
+                onClick={executePythonFile}
+                disabled={loading && !cancelTokenSource.current}
+              >
+                {loading ? "Stop" : "Run"}
+              </button>
+              <SettingsMenu setGetEnv={setGetEnv}/>
+            </b>
+          
         </div>
 
         <div className="mainbody">
@@ -168,7 +181,7 @@ function Dashboard() {
         </div>
       </div>
 
-      {getenv && <VirtualEnvInput setEnvPath={startExecution} setGetEnv={setGetEnv} />}
+      {getenv && <VirtualEnvInput setEnvPath={startExecution} setGetEnv={setGetEnv} envPath={envpath}/>}
     </>
   );
 }

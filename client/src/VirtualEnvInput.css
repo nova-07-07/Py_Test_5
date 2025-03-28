@@ -1,32 +1,82 @@
- .container {
-    position: fixed;
-    top: 30%;
-    left: 45%;
-    display: flex;
-    flex-direction: column;
-    width: max-content;
+.container {
+  position: fixed;
+  top: 10%;
+  left: 11%;
+  right: 10%;
+  bottom: 10%;
+  display: flex;
+  flex-direction: column;
+  max-width: 80vw;
+  max-height: 80vh;
+  color: black;
+  pointer-events: auto;
+  background-color: rgb(230, 230, 230);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.7);
+  outline: 0;
+  overflow: auto;
+}
+
+.indexno{
+  margin-top: 3px;
+  margin-left: 10px;
+}
+
+.deletebtn{
+  border: solid black 1px;
+  border-radius: 7px;
+  margin: 3px;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+.li_l{
+  background-color: #ffffff;
+  color: black;
+  border-radius: 5px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.4);
+  padding-right: 10px;
+  margin: 5px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.bod{
+  width: 100v;
+  height: 100%;
+  margin: 10px;
+}]
+
+.markenv{
+  background-color: burlywood;
+}
+  
+.addBtn{
+  border: solid black 1px;
+  background-color: greenyellow;
+  padding: 2px;
+  border-radius: 5px;
+  margin-left: 20px;
+}
+.path_in{
+  border: brown;
+  height: 100%;
+}
+  
+  .nav {
     color: black;
-    pointer-events: auto;
-    background-color: white;
-    background-clip: padding-box;
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    outline: 0;
-  }
-  
-  
-  .input-box {
+    display: flex;
     padding: 20px;
     background: white;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
-    width: 300px;
+    width: 100%;
     text-align: center;
   }
   
   .input-box h2 {
-    font-size: 18px;
+    font-size: 10px;
     margin-bottom: 10px;
   }
   
