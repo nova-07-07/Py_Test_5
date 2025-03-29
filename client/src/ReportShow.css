@@ -1,0 +1,51 @@
+.main_container {
+    position: fixed;
+    top: 10%;
+    left: 11%;
+    right: 10%;
+    bottom: 10%;
+    display: flex;
+    flex-direction: row;
+    max-width: 80vw;
+    max-height: 80vh;
+    color: black;
+    pointer-events: auto;
+    background-color: rgb(230, 230, 230);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.7);
+    outline: 0;
+    overflow: auto;
+  }
+  
+  .sidebar {
+    width: 25%;
+    background-color: #ccc;
+    padding: 10px;
+  }
+  
+  .sidebar_item {
+    padding: 10px;
+    height: 40px;
+    border-bottom: 1px solid #aaa;
+  }
+
+  .sidebar_item:hover{
+    height: 45px;
+    padding-bottom: 15px;
+    background-color: burlywood;
+    color: white;
+    cursor: pointer;
+
+  }
+  
+  .body_content {
+    flex: 1;
+    padding: 20px;
+    width: 75%;
+    border: solid 5px white;
+    overflow-x: scroll;
+    color: white;
+    background-color: rgb(49, 49, 49);
+  }
+  

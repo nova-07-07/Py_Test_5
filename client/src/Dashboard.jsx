@@ -4,6 +4,8 @@ import { useState, useRef } from "react";
 import FolderView from "./FolderView";
 import VirtualEnvInput from "./VirtualEnvInput.jsx";
 import SettingsMenu from "./SettingsMenu";
+import ReportSave from "./ReportSave.jsx";
+import ReportShow from "./ReportShow.jsx";
 
 function Dashboard() {
   const [path, setPath] = useState("");
@@ -13,14 +15,26 @@ function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [flode, setFlode] = useState(false);
   const [getenv, setGetEnv] = useState(false);
+  const [showReportSave ,SetShowReportSave] = useState(false);
+  const [showReportShow ,SetShowReportShow] = useState(false);
   const [envpath, setEnvPath] = useState("");
   const cancelTokenSource = useRef(null);
+  const [disBlack , setDisplayBlack] = useState(false)
+
+  function backgroundSelect() {
+        SetShowReportSave(false);
+        SetShowReportShow(false);
+        setGetEnv(false);
+        setDisplayBlack(false)
+      }
 
   const fetchFolders = async () => {
     if (!path.trim()) {
       alert("Please enter a valid path.");
       return;
     }
+
+    
 
     setOutput("");
     setFlode(true);
@@ -40,8 +54,8 @@ function Dashboard() {
 
       if (error.response?.status === 401) {
         alert("Unauthorized access! Please log in again.");
-        localStorage.removeItem("token"); // Remove invalid token
-        setFolderData("UNAUTHORIZED");
+        localStorage.removeItem("token"); 
+        navigate("/");
       } else {
         setFolderData(null);
       }
@@ -58,6 +72,7 @@ function Dashboard() {
 
     if (!envpath) {
       setGetEnv(true);
+      setDisplayBlack(true)
     } else {
       startExecution(envpath);
     }
@@ -117,7 +132,15 @@ function Dashboard() {
 
   return (
     <>
-      <div style={{ opacity: getenv ? 0.2 : 1 }} onClick={() => getenv && setGetEnv(false)}>
+     <div 
+      style={{ opacity: disBlack ? 0.2 : 1 }} 
+      onClick={() => {
+        if (disBlack) {
+          backgroundSelect();
+        }
+      }}
+    >
+
         <div className="nav">
           <h1 className="hed">Test Execution GUI</h1>
           <div className="inputdev">
@@ -159,7 +182,7 @@ function Dashboard() {
               >
                 {loading ? "Stop" : "Run"}
               </button>
-              <SettingsMenu setGetEnv={setGetEnv}/>
+              <SettingsMenu SetShowReportSave={SetShowReportSave} setGetEnv={setGetEnv} SetShowReportShow={SetShowReportShow } setDisplayBlack={setDisplayBlack} />
             </b>
           
         </div>
@@ -181,7 +204,9 @@ function Dashboard() {
         </div>
       </div>
 
-      {getenv && <VirtualEnvInput setEnvPath={startExecution} setGetEnv={setGetEnv} envPath={envpath}/>}
+      {getenv && <VirtualEnvInput setEnvPath={startExecution} setGetEnv={setGetEnv} envPath={envpath} backgroundSelect={backgroundSelect} />}
+      {showReportSave && <ReportSave SetShowReportSave={SetShowReportSave} output={output} backgroundSelect={backgroundSelect}/>}
+      { showReportShow && <ReportShow /> }
     </>
   );
 }

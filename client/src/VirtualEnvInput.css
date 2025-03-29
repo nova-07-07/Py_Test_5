@@ -18,6 +18,10 @@
   overflow: auto;
 }
 
+.gg{
+  width: 100px;
+}
+
 .indexno{
   margin-top: 3px;
   margin-left: 10px;
@@ -102,3 +106,8 @@
     background-color: #0056b3;
   }
   
+  .usebtn{
+    border-radius: 5px;
+    width: 50px;
+    border: solid black 1px;
+  }
