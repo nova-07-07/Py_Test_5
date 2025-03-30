@@ -46,9 +46,7 @@ def hash_password(password):
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
 def check_password(password, hashed):
-    if isinstance(hashed, str):  # Decode if stored as a string
-        hashed = hashed.encode('utf-8')
-    return bcrypt.checkpw(password.encode('utf-8'), hashed)
+    return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
 
 def initialize_user_data(email):
     if not user_data_collection.find_one({"email": email}):
@@ -58,31 +56,32 @@ def initialize_user_data(email):
 def signup():
     data = request.json
     print("Received signup data:", data) 
-    email = data.get("email")
     username = data.get("name")
     password = data.get("password")
 
-    if not username or not password or not email:
-        return jsonify({"error": "Username and password  and email are required"}), 400
+    if not username or not password :
+        return jsonify({"error": "Username and password   required"}), 400
 
-    if users_collection.find_one({"email": email}):
+    if users_collection.find_one({"name": username}):
         return jsonify({"error": "Username already exists"}), 400
 
     hashed_password = hash_password(password)
-    users_collection.insert_one({"email": email, "password": hashed_password})
+    users_collection.insert_one({"name": username, "password": hashed_password})
     return jsonify({"message": "User created successfully"}), 201
 
 @app.route("/signin", methods=["POST"])
 def signin():
     data = request.json
-    email = data.get("email")
+    print(data)
+    username = data.get("name")
     password = data.get("password")
 
-    user = users_collection.find_one({"email": email})
+    user = users_collection.find_one({"name": username})
     if not user or not check_password(password, user["password"]):
         return jsonify({"error": "Invalid username or password"}), 401
 
     access_token = create_access_token(identity=str(user["_id"]))
+    print(access_token)
     return jsonify({"access_token": access_token, "message": "Login successful"})
 
 @app.route("/logout", methods=["POST"])
