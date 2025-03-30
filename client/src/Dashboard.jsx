@@ -226,7 +226,7 @@ useEffect(()=>{
       {getenv && <VirtualEnvInput setEnvPath={startExecution} setGetEnv={setGetEnv} envPath={envpath} backgroundSelect={backgroundSelect} />}
       {showReportSave && <ReportSave SetShowReportSave={SetShowReportSave} output={output} backgroundSelect={backgroundSelect}/>}
       { showReportShow && <ReportShow /> }
-      <DisplayArguments />
+      {/*<DisplayArguments />*/}
     </>
   );
 }
