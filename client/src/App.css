@@ -27,7 +27,7 @@ body{
   }
   .run_set{
     display: flex;
-    gap: 20px;
+    justify-content: space-between;
   }
   .hed{
     font-size: 20px;
@@ -38,6 +38,7 @@ body{
     height: 65px;
     display: flex;
     padding: 10px;
+    gap: 20px;
     justify-content: space-between;
 
 }

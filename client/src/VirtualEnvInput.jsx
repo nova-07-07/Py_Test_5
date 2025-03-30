@@ -104,7 +104,7 @@ export default function VirtualEnvInput({ setEnvPath, setGetEnv, envPath , backg
   }
 
   return (
-    <div className="container">
+    <div className="container-new">
       <div className="nav">
         <h2>Environments</h2>
         <div>

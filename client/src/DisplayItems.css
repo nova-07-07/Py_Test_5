@@ -1,0 +1,87 @@
+.main_container {
+    position: fixed;
+    top: 20%;
+    left: 25%;
+    right: 10%;
+    bottom: 30%;
+    display: flex;
+    flex-direction: column;
+    max-width: 80vw;
+    max-height: 80vh;
+    color: black;
+    width: max-content;
+    pointer-events: auto;
+    background-color: rgb(230, 230, 230);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.7);
+    outline: 0;
+    overflow: auto;
+    padding: 10px;
+    gap: 10px;
+}
+
+.uBtn{
+    margin-top: 11px;
+    background-color: dimgray;
+    color: white;
+    height: 44px;
+    width: 60px;
+    padding: 2px;
+    border: solid black 2px;
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+    /* transition-duration: 0.5s; */
+}
+
+.tt-Arg{
+    padding-top: 10px;
+    font-size: 20px;
+}
+
+.uBtn:hover{
+    margin-top: 0px;
+    padding-top: 7px;
+    padding-bottom: 11px;
+    background-color: rgb(71, 67, 67);
+    /* margin-bottom: 7px; */
+    height: 51px;
+    animation: hoverEffect 0.5s forwards;
+
+}
+@keyframes hoverEffect {
+    from {
+      margin-top: 11px;
+    }
+    to {
+      margin-top: 0px;
+      padding-top: 7px;
+      padding-bottom: 11px;
+      background-color: rgb(48, 45, 45);
+      height: 51px;
+    }
+  }
+
+.nav_arg{
+    display: flex;
+    justify-content: space-between;
+    padding-left: 20px;
+    padding-right: 20px;
+    height: 50px;
+}
+
+.item {
+    display: flex;
+    justify-content: space-evenly;
+    padding: 10px;
+    background-color: white;
+    border-radius: 5px;
+    width: 100vh;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    /* margin-left: 40px;
+    margin-right: 40px; */
+}
+
+.input_val{
+    border: solid black 1px;
+}

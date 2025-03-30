@@ -2,12 +2,13 @@
 SETLOCAL
 
 IF "%~1"=="" (
-    echo Usage: run_python_file.bat "<python_script>" "<env_path>"
+    echo Usage: run_python_file.bat "<python_script>" "<env_path>" "<testType>"
     exit /b 1
 )
 
 SET FILE_PATH=%~1
 SET ENV_DIR=%~2
+SET TESTTYPT=%~3
 
 if not exist "%FILE_PATH%" (
     echo Error: Python script not found -> %FILE_PATH%
@@ -45,6 +46,7 @@ echo -----------------------
 echo  Running in ENV_DIR: %ENV_DIR%
 echo  Executing: %FILE_PATH%
 echo  Execution Time: %FormattedTime% %DayName% %FormattedDate%
+echo  Test type : %TESTTYPT%
 echo -----------------------
 
 REM Activate virtual environment

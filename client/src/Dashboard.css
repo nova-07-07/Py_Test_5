@@ -6,6 +6,11 @@
 .folder-container {
     margin-left: 20px;
   }
+
+  .nav_one{
+    width: 55%;
+    justify-content: space-between;
+  }
   
   .folder {
     cursor: pointer;
@@ -26,8 +31,13 @@
     font-size: 30px;
     font-family: 'Times New Roman', Times, serif;
   }
+
+  .nav_two{
+    width: 45%;
+    justify-content: space-between;
+  }
 .nav{
-    background-color: rgba(60, 60, 60, 0.616);
+    background-color: rgba(126, 126, 126, 0.616);
     width: 100hv;
   
     height: 65px;
@@ -116,6 +126,8 @@
     min-height: 90vh;
     overflow: scroll;
 }
+
+
 
 .right{
     padding: 20px;

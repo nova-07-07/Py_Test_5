@@ -1,11 +1,13 @@
 import "./App.css";
 import axios from "axios";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import FolderView from "./FolderView";
 import VirtualEnvInput from "./VirtualEnvInput.jsx";
 import SettingsMenu from "./SettingsMenu";
 import ReportSave from "./ReportSave.jsx";
 import ReportShow from "./ReportShow.jsx";
+import './Dashboard.css'
+import DisplayArguments from "./DisplayArguments.jsx";
 
 function Dashboard() {
   const [path, setPath] = useState("");
@@ -19,14 +21,22 @@ function Dashboard() {
   const [showReportShow ,SetShowReportShow] = useState(false);
   const [envpath, setEnvPath] = useState("");
   const cancelTokenSource = useRef(null);
-  const [disBlack , setDisplayBlack] = useState(false)
+  const [disBlack , setDisplayBlack] = useState(false);
+  const [testType , setTestType] = useState("python");
+  const [settingExit , setSettingExit] = useState(false)
 
   function backgroundSelect() {
         SetShowReportSave(false);
         SetShowReportShow(false);
         setGetEnv(false);
         setDisplayBlack(false)
+        setSettingExit(false);
+        console.log(false);
       }
+useEffect(()=>{
+  console.log(settingExit);
+  
+},[settingExit])
 
   const fetchFolders = async () => {
     if (!path.trim()) {
@@ -65,17 +75,22 @@ function Dashboard() {
   };
 
   const executePythonFile = async () => {
+    if (testType == "e") {
+      alert("please enter test type");
+      return;
+    }
     if (!selectedFile?.path) {
       setOutput("No file selected.");
       return;
     }
-
     if (!envpath) {
       setGetEnv(true);
       setDisplayBlack(true)
     } else {
       startExecution(envpath);
     }
+
+    
   };
 
   const startExecution = async (envPath) => {
@@ -96,14 +111,17 @@ function Dashboard() {
 
     setLoading(true);
     setOutput("");
-
+    if (testType == "e") {
+      alert("please enter test type");
+      return;
+    }
     cancelTokenSource.current = axios.CancelToken.source();
 
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
         "http://localhost:5000/execute-script",
-        { file_path: selectedFile.path, env_path: envPath },
+        { file_path: selectedFile.path, env_path: envPath ,testType : testType },
         {
           headers: {
             "Content-Type": "application/json",
@@ -142,52 +160,53 @@ function Dashboard() {
     >
 
         <div className="nav">
-          <h1 className="hed">Test Execution GUI</h1>
-          <div className="inputdev">
-            <input
-              type="text"
-              className="pathIn"
-              placeholder="Enter folder path or git URL"
-              value={path}
-              onChange={(e) => setPath(e.target.value)}
-            />
-            <button className="gobtn" onClick={fetchFolders}>
-              <b>Go</b>
-            </button>
-          </div>
-
-          {/* <p className="rund">
-            <div>
-              <span className="epath" onClick={() => setGetEnv(true)}>
-                Env_Path: {envpath || "Click to set"}
-              </span>
+        <div className="nav_one" style={{ display: "flex" }}>
+            <span className="hed">Test Execution GUI</span>
+            <div className="inputdev">
+              <input
+                type="text"
+                className="pathIn"
+                placeholder="Enter folder path or git URL"
+                value={path}
+                onChange={(e) => setPath(e.target.value)}
+              />
+              <button className="gobtn" onClick={fetchFolders}>
+                <b>Go</b>
+              </button>
             </div>
-            <b>
-              {selectedFile?.filename || "No file selected"}
-              <button
-                className="run-btn"
-                onClick={executePythonFile}
-                disabled={loading && !cancelTokenSource.current}
-              >
-                {loading ? "Stop" : "Run"}
-              </button>
-            </b>
-          </p> */}
+          </div>
+          <div className="nav_two">
             <b className="run_set"> 
-              <span className="hee">{selectedFile?.filename || "No file selected"}</span>
-              <button
-                className="run-btn"
-                onClick={executePythonFile}
-                disabled={loading && !cancelTokenSource.current}
-              >
-                {loading ? "Stop" : "Run"}
-              </button>
-              <SettingsMenu SetShowReportSave={SetShowReportSave} setGetEnv={setGetEnv} SetShowReportShow={SetShowReportShow } setDisplayBlack={setDisplayBlack} />
+              <div>
+                  <span className="hee">{selectedFile?.filename || "No file selected"}</span>
+                <button
+                  className="run-btn"
+                  onClick={executePythonFile}
+                  disabled={loading && !cancelTokenSource.current}
+                >
+                  {loading ? "Stop" : "Run"}
+                </button>
+              </div>
+              
+              <SettingsMenu 
+                SetShowReportSave={SetShowReportSave} 
+                setGetEnv={setGetEnv} 
+                SetShowReportShow={SetShowReportShow} 
+                setDisplayBlack={setDisplayBlack} 
+                setTestType={setTestType}
+                SetDisplayBlack={setDisplayBlack}
+                setSettingExit={setSettingExit}
+                settingExit={settingExit}
+              />
             </b>
-          
+            </div>
         </div>
 
-        <div className="mainbody">
+        <div className="mainbody" onClick={() => {
+          if(settingExit){
+          backgroundSelect()
+          }
+        }}>
           <div className="left">
             {flode ? <h1>Loading...</h1> : <FolderView folderData={folderData || {}} setSelectedFile={setSelectedFile} />}
           </div>
@@ -207,6 +226,7 @@ function Dashboard() {
       {getenv && <VirtualEnvInput setEnvPath={startExecution} setGetEnv={setGetEnv} envPath={envpath} backgroundSelect={backgroundSelect} />}
       {showReportSave && <ReportSave SetShowReportSave={SetShowReportSave} output={output} backgroundSelect={backgroundSelect}/>}
       { showReportShow && <ReportShow /> }
+      <DisplayArguments />
     </>
   );
 }

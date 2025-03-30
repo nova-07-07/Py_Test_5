@@ -193,17 +193,14 @@ def execute_file_script():
     data = request.json
     file_path = data.get("file_path")
     env_path = request.json.get("env_path")
+    testType = request.json.get("testType")
 
     if isinstance(env_path, list):
-        env_path = env_path[0]  # Extract the first element if it's a list
+        env_path = env_path[0] 
 
-
-
-    # Convert to absolute paths
     file_path = os.path.abspath(file_path)
     env_path = os.path.abspath(env_path)
 
-    # Validate paths
     if not os.path.exists(file_path) or not file_path.endswith(".py"):
         return jsonify({"error": "Invalid file path"}), 400
 
@@ -212,7 +209,7 @@ def execute_file_script():
 
     try:
         result = subprocess.run(
-            [BAT_FILE_PATH, file_path, env_path],
+            [BAT_FILE_PATH, file_path, env_path , testType],
             capture_output=True,
             text=True,
             shell=True
