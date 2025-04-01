@@ -57,6 +57,8 @@ useEffect(()=>{
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+      console.log(token);
+      
 
       setFolderData(response.data);
     } catch (error) {

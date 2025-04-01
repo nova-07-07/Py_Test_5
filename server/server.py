@@ -9,6 +9,9 @@ import bcrypt
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required ,get_jwt
 from flask_jwt_extended import get_jwt_identity
 import uuid
+from jwt import ExpiredSignatureError
+from datetime import timedelta
+
 
 
 
@@ -20,23 +23,21 @@ BAT_FILE_PATH = os.path.abspath("run_python_file.bat")
 
 os.makedirs(REPO_DIR, exist_ok=True)
 
-MONGO_URI = "mongodb+srv://nova:nova2346@nova.r5lap4p.mongodb.net/?retryWrites=true&w=majority&appName=nova"
+MONGO_URI = "mongodb://localhost:27017/"  # Local MongoDB connection
+
 try:
     client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)  # 5-second timeout
     db = client["user_database"]
     users_collection = db["users"]
     user_data_collection = db["user_data"]
-    reports_collection = db["reports"]\
+    reports_collection = db["reports"]
 
-    
-    
     # Attempt to ping the database
     client.admin.command('ping')
-    print("✅ Connected to MongoDB successfully!")
+    print("✅ Connected to local MongoDB successfully!")
 except Exception as e:
     print(f"❌ MongoDB Connection Error: {e}")
-    exit(1)  # Exit if DB connection fails  # Collection
-
+    exit(1)  # Exit if DB connection fails
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "Test_Execution_GUI")
 
 jwt = JWTManager(app)
@@ -80,9 +81,12 @@ def signin():
     if not user or not check_password(password, user["password"]):
         return jsonify({"error": "Invalid username or password"}), 401
 
-    access_token = create_access_token(identity=str(user["_id"]))
+    access_token = create_access_token(identity=str(user["_id"]), expires_delta=timedelta(hours=1))
+
     print(access_token)
     return jsonify({"access_token": access_token, "message": "Login successful"})
+
+
 
 @app.route("/logout", methods=["POST"])
 @jwt_required()
@@ -95,6 +99,21 @@ def logout():
 def check_if_token_in_blacklist(jwt_header, jwt_payload):
     return jwt_payload["jti"] in blacklist
 
+@app.route("/verify-token", methods=["POST"])
+def verify_token():
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    token = auth_header.split(" ")[1]
+
+    try:
+        jwt.decode(token, app.config["JWT_SECRET_KEY"], algorithms=["HS256"])
+        return jsonify({"message": "Token is valid"}), 200
+    except jwt.ExpiredSignatureError:
+        return jsonify({"error": "Token expired"}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({"error": "Invalid token"}), 401
 
 
 def get_folder_structure(path):
