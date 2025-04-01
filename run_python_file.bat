@@ -2,13 +2,14 @@
 SETLOCAL
 
 IF "%~1"=="" (
-    echo Usage: run_python_file.bat "<python_script>" "<env_path>" "<testType>"
+    echo Usage: run_python_file.bat "<python_script>" "<env_path>" "<testType>" "<args>"
     exit /b 1
 )
 
 SET FILE_PATH=%~1
 SET ENV_DIR=%~2
 SET TESTTYPT=%~3
+SET ARGS=%~4
 
 if not exist "%FILE_PATH%" (
     echo Error: Python script not found -> %FILE_PATH%
@@ -41,12 +42,43 @@ FOR /F "tokens=1-3 delims=/ " %%A IN ("%FormattedDate%") DO (
     )
 )
 
+REM Shift first three parameters to process additional args
+SHIFT
+SHIFT
+SHIFT
+
 REM Print execution details
 echo -----------------------
 echo  Running in ENV_DIR: %ENV_DIR%
 echo  Executing: %FILE_PATH%
 echo  Execution Time: %FormattedTime% %DayName% %FormattedDate%
 echo  Test type : %TESTTYPT%
+
+SET ARG_INDEX=0
+SET ALL_ARGS=
+
+:PROCESS_ARGS
+IF "%~1"=="" GOTO END_ARGS
+
+REM Check if the current argument is a flag like --a, --b, etc.
+SET ARG_NAME=%1
+
+REM Check if the next argument exists and is not empty
+SET NEXT_ARG=%2
+
+IF NOT "%NEXT_ARG%"=="" (
+    REM If valid, add both the flag and its value to ALL_ARGS
+    echo  Arg[%ARG_INDEX%]: %ARG_NAME% %NEXT_ARG%
+    SET ALL_ARGS=%ALL_ARGS% %ARG_NAME% %NEXT_ARG%
+    SET /A ARG_INDEX+=1
+)
+
+REM Shift two arguments to move to the next pair
+SHIFT
+SHIFT
+GOTO PROCESS_ARGS
+
+:END_ARGS
 echo -----------------------
 
 REM Activate virtual environment
@@ -58,10 +90,10 @@ pip install --quiet pytest
 REM Check if it's a pytest file or a normal script
 echo %FILE_PATH% | findstr /I "test_" >nul && (
     echo Running as pytest...
-    pytest "%FILE_PATH%" -s -v
+    pytest "%FILE_PATH%" %ALL_ARGS% -s -v
 ) || (
     echo Running as normal script...
-    python "%FILE_PATH%"
+    python "%FILE_PATH%" %ALL_ARGS%
 )
 
 REM Deactivate environment

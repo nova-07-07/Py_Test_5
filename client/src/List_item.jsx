@@ -2,9 +2,6 @@ import React from "react";
 import "./VirtualEnvInput.css";
 
 const List_item = ({ items, handleDelete, handleUse, envPath }) => {
-
-
-  console.log("item =",items,"path",envPath);
   
   return (
     <div className="ul_l">

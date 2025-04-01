@@ -4,7 +4,7 @@ import "./VirtualEnvInput.css";
 import List_item from "./List_item";
 import { useNavigate } from "react-router-dom";
 
-export default function VirtualEnvInput({ setEnvPath, setGetEnv, envPath , backgroundSelect }) {
+export default function VirtualEnvInput({ setEnvPath, setGetEnv, envPath , backgroundSelect  }) {
   const [path, setPath] = useState("");
   const [items, setItems] = useState([]);
   const [refresh, setRefresh] = useState(false);
@@ -64,7 +64,6 @@ export default function VirtualEnvInput({ setEnvPath, setGetEnv, envPath , backg
           return;
         }
 
-        // Update backend
         await axios.post(
           "http://localhost:5000/update-env-path",
           { env_path: newPath },

@@ -81,6 +81,7 @@ export default function SettingsMenu({ setGetEnv, SetShowReportSave, SetShowRepo
                 setGetEnv(true);
                 setMenuOpen(false);
                 setDisplayBlack(true);
+                setTestSettingsOpen(false);
             }}>
               Environment
             </button>
@@ -99,7 +100,6 @@ export default function SettingsMenu({ setGetEnv, SetShowReportSave, SetShowRepo
         </div>
       )}
 
-      {/* Reports Section */}
       {reportsOpen && (
         <div className="left-nav-con">
           <div className="test-settings-container">
