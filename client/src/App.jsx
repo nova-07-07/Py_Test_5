@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from "react
 import { useState } from "react";
 import axios from "axios";
 import Dashboard from "./Dashboard";
-import ProtectedRoute from "./ProtectedRoute";
+
 import "./Authentication.css"
 
 function Home() {
@@ -113,10 +113,8 @@ function App() {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
 
-        {/* Protected Route with nested dashboard */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-        </Route>
+        <Route path="/dashboard" element={<Dashboard />} />
+
       </Routes>
     </Router>
   );

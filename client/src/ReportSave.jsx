@@ -53,7 +53,6 @@ const ReportSave = ({SetShowReportSave, output , backgroundSelect}) => {
           name
         }),
       });
-      console.log(response);
       
       alert("report saved");
       SetShowReportSave(false);

@@ -2,18 +2,18 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
 import subprocess
+import ast
 import shutil
 from urllib.parse import urlparse
 from pymongo import MongoClient
 import bcrypt
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required ,get_jwt
 from flask_jwt_extended import get_jwt_identity
-import uuid
-from jwt import ExpiredSignatureError
 from datetime import timedelta
 
+import uuid
 
-
+# chech_arg
 
 app = Flask(__name__)
 CORS(app)
@@ -212,6 +212,9 @@ def execute_file_script():
     file_path = data.get("file_path")
     env_path = request.json.get("env_path")
     testType = request.json.get("testType")
+    args = request.json.get("arg")
+
+    print(args)
 
     if isinstance(env_path, list):
         env_path = env_path[0] 
@@ -224,10 +227,10 @@ def execute_file_script():
 
     if not os.path.exists(env_path):
         return jsonify({"error": f"Invalid virtual environment path: {env_path}"}), 400
-
+    flattened_args = [item for sublist in args for item in sublist]
     try:
         result = subprocess.run(
-            [BAT_FILE_PATH, file_path, env_path , testType],
+            [BAT_FILE_PATH, file_path, env_path , testType ]+ flattened_args,
             capture_output=True,
             text=True,
             shell=True
@@ -391,6 +394,44 @@ def get_user_reports():
         return jsonify({"reports": []}), 200  # Ensure empty list instead of None
 
     return jsonify({"reports": user_reports}), 200
+
+
+def extract_options(file_path):
+    with open(file_path, "r") as f:
+        tree = ast.parse(f.read())
+
+    options = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call) and hasattr(node.func, 'attr') and node.func.attr == "addoption":
+            # Handle both Python versions (pre-3.8 and post-3.8)
+            args = [arg.value if isinstance(arg, ast.Constant) else arg.s for arg in node.args if isinstance(arg, (ast.Str, ast.Constant))]
+            kwargs = {kw.arg: (kw.value.value if isinstance(kw.value, ast.Constant) else kw.value.s) 
+                      for kw in node.keywords if isinstance(kw.value, (ast.Str, ast.Constant))}
+            
+            options.append([
+                args[0] if args else "",
+                f"action={kwargs.get('action', '')}",
+                f"type={kwargs.get('type', '')}",
+                f"help={kwargs.get('help', '')}"
+            ])
+    return options
+
+@app.route("/chech_arg", methods=["POST"])
+def check_arg():
+    data = request.get_json()
+    file_path = data.get("path")
+
+    if not file_path:
+        return jsonify({"error": "Missing path parameter"}), 400
+    print(file_path)
+    try:
+        response = extract_options(file_path)
+        return jsonify(response)
+    except Exception as e:
+        print(f"Error processing file: {str(e)}")  # Log error
+        return jsonify({"error": str(e)}), 500
+
+
 
 
 

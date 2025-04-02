@@ -8,8 +8,15 @@ import ReportSave from "./ReportSave.jsx";
 import ReportShow from "./ReportShow.jsx";
 import './Dashboard.css'
 import DisplayArguments from "./DisplayArguments.jsx";
+import { useNavigate } from "react-router-dom";
 
 function Dashboard() {
+
+  const navigate = useNavigate()
+  if (!localStorage.getItem("token")) {
+    navigate("/signin");
+    return null; // Return null to prevent rendering further
+  }
   const [path, setPath] = useState("");
   const [folderData, setFolderData] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -23,20 +30,36 @@ function Dashboard() {
   const cancelTokenSource = useRef(null);
   const [disBlack , setDisplayBlack] = useState(false);
   const [testType , setTestType] = useState("python");
-  const [settingExit , setSettingExit] = useState(false)
+  const [settingExit , setSettingExit] = useState(false);
+  const [argObject , setArgObj] = useState([]);
+  const [displayArgComp , setDisplayArgComp] = useState(false);
+  const [argArray , setArgArray] = useState([]);
+  const [argInputs , setArgInput] = useState([])
 
   function backgroundSelect() {
+
         SetShowReportSave(false);
         SetShowReportShow(false);
         setGetEnv(false);
         setDisplayBlack(false)
         setSettingExit(false);
-        console.log(false);
-      }
-useEffect(()=>{
-  console.log(settingExit);
+        setDisplayArgComp(false);
+  }
   
-},[settingExit])
+
+  useEffect(()=>{
+    if (!selectedFile?.path) {
+      setOutput("Select File and click Run");
+    }else {
+      setOutput("Click Run to run the selected file.")
+    }
+    
+  },[envpath])
+
+  useEffect(()=>{
+    
+    
+  },[settingExit])
 
   const fetchFolders = async () => {
     if (!path.trim()) {
@@ -61,6 +84,30 @@ useEffect(()=>{
       
 
       setFolderData(response.data);
+      
+      function findConftestPaths(obj) {
+        let result = [];
+    
+        function traverse(node) {
+            if (!node || !node.items) return;
+            
+            for (let item of node.items) {
+                if (!item.isfolder && item.name === "conftest.py") {
+                    result.push(item.path);
+                } else if (item.isfolder) {
+                    traverse(item);
+                }
+            }
+        }
+        
+        traverse(obj);
+        return result;
+    }
+    console.log(response.data);
+    
+    setArgObj(findConftestPaths(response.data));
+    console.log(argObject);
+    
     } catch (error) {
       console.error("Error fetching folders:", error);
 
@@ -77,23 +124,50 @@ useEffect(()=>{
   };
 
   const executePythonFile = async () => {
-    if (testType == "e") {
-      alert("please enter test type");
-      return;
-    }
     if (!selectedFile?.path) {
       setOutput("No file selected.");
       return;
     }
     if (!envpath) {
-      setGetEnv(true);
-      setDisplayBlack(true)
-    } else {
-      startExecution(envpath);
+      setGetEnv(true); // Show VirtualEnvInput
+      setDisplayBlack(true);
+      return;
     }
-
-    
+  
+    if (argObject.length !== 0) {
+      let Argpath = null;
+      
+  
+      for (const element of argObject) {
+        if (element.replace(/\\conftest\.py$/, '') === selectedFile.path.replace(/\\[^\\]*\.py$/, '')) {
+          try {
+            const token = localStorage.getItem("token");
+            const response = await axios.post(
+              "http://localhost:5000/chech_arg",
+              { path: element },
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+  
+            Argpath = element;
+            setArgArray(response.data);
+          } catch (error) {
+            console.error("Execution error", error);
+            setOutput("Execution error", error);
+            setLoading(false);
+            return
+          }
+        }
+      }
+  
+      if (Argpath) {
+        setDisplayArgComp(true);
+        return;
+      }
+    }
+    startExecution(envpath);
   };
+  
+  
 
   const startExecution = async (envPath) => {
     if (!envPath) {
@@ -121,9 +195,10 @@ useEffect(()=>{
 
     try {
       const token = localStorage.getItem("token");
+      const args = argObject !== 0 ? argInputs : {};  
       const response = await axios.post(
         "http://localhost:5000/execute-script",
-        { file_path: selectedFile.path, env_path: envPath ,testType : testType },
+        { file_path: selectedFile.path, env_path: envPath ,testType : testType ,arg: args},
         {
           headers: {
             "Content-Type": "application/json",
@@ -133,7 +208,6 @@ useEffect(()=>{
         }
       );
 
-      console.log("Execution response", response.data);
       setOutput(response.data.stdout || response.data.stderr || "No output");
     } catch (error) {
       console.error("Execution error", error);
@@ -216,7 +290,9 @@ useEffect(()=>{
             {selectedFile ? (
               <div className="right-1">
                 <h2 className="ter-tit">Output</h2>
-                <pre className="output">{loading ? "Running..." : output}</pre>
+                <pre className="output">
+                  {loading ? "Running..." : `${output}`}
+                </pre>
               </div>
             ) : (
               <h1 className="ter-tit">Click a Python file to select</h1>
@@ -225,10 +301,10 @@ useEffect(()=>{
         </div>
       </div>
 
-      {getenv && <VirtualEnvInput setEnvPath={startExecution} setGetEnv={setGetEnv} envPath={envpath} backgroundSelect={backgroundSelect} />}
+      {getenv && <VirtualEnvInput setEnvPath={setEnvPath} setGetEnv={setGetEnv} envPath={envpath} backgroundSelect={backgroundSelect} />}
       {showReportSave && <ReportSave SetShowReportSave={SetShowReportSave} output={output} backgroundSelect={backgroundSelect}/>}
       { showReportShow && <ReportShow /> }
-      {/*<DisplayArguments />*/}
+      { displayArgComp && <DisplayArguments argArray={argArray} setArgInput={setArgInput} argInputs={argInputs} startExecution={startExecution} envpath={envpath} setDisplayArgComp={setDisplayArgComp} setDisplayBlack={setDisplayBlack}/>}
     </>
   );
 }
