@@ -26,7 +26,7 @@ BAT_FILE_PATH = os.path.abspath("run_python_file.bat")
 
 os.makedirs(REPO_DIR, exist_ok=True)
 
-MONGO_URI = "mongodb://localhost:27017/"  # Local MongoDB connection
+MONGO_URI = "mongodb+srv://nova:nova2346@nova.r5lap4p.mongodb.net/?retryWrites=true&w=majority&appName=nova"  # Local MongoDB connection
 
 try:
     client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)  # 5-second timeout

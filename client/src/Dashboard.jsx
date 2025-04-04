@@ -27,18 +27,28 @@ function Dashboard() {
   const [argObject , setArgObj] = useState([]);
   const [displayArgComp , setDisplayArgComp] = useState(false);
   const [argArray , setArgArray] = useState([]);
-  const [argInputs , setArgInput] = useState([])
+  const [argInputs , setArgInput] = useState([]);
+  const [disW,setDispW] = useState(false);
+  const [disSet , setDisSet] = useState(false);
 
   function backgroundSelect() {
-
         SetShowReportSave(false);
         SetShowReportShow(false);
         setGetEnv(false);
         setDisplayBlack(false)
         setSettingExit(false);
         setDisplayArgComp(false);
+        setDispW(false);
+        setSettingExit(!settingExit);
   }
   
+  useEffect(()=>{
+    if (disSet) {
+      setDispW(true);
+    }else{
+      setDispW(false);
+    }    
+  },[disSet])
 
   useEffect(()=>{
     if (!selectedFile?.path) {
@@ -66,6 +76,7 @@ function Dashboard() {
     setArgObj([]);
     setArgArray([]);
     setArgInput([]);
+    setSelectedFile("");
     setFlode(true);
     const token = localStorage.getItem("token");
 
@@ -123,7 +134,7 @@ function Dashboard() {
       return;
     }
     if (!envpath) {
-      setGetEnv(true); // Show VirtualEnvInput
+      setGetEnv(true);
       setDisplayBlack(true);
       return;
     }
@@ -221,9 +232,9 @@ function Dashboard() {
   return (
     <>
      <div 
-      style={{ opacity: disBlack ? 0.2 : 1 }} 
-      onClick={() => {
-        if (disBlack) {
+      style={{ opacity: (disBlack) ? 0.2 : 1 }} 
+      onClick={() => {  // this onclick appley whitout SettingsMenu how
+        if (disBlack || disW) {
           backgroundSelect();
         }
       }}
@@ -257,17 +268,18 @@ function Dashboard() {
                   {loading ? "Stop" : "Run"}
                 </button>
               </div>
-              
-              <SettingsMenu 
-                SetShowReportSave={SetShowReportSave} 
-                setGetEnv={setGetEnv} 
-                SetShowReportShow={SetShowReportShow} 
-                setDisplayBlack={setDisplayBlack} 
-                setTestType={setTestType}
-                SetDisplayBlack={setDisplayBlack}
-                setSettingExit={setSettingExit}
-                settingExit={settingExit}
-              />
+              <div onClick={(e) => e.stopPropagation()}>
+                <SettingsMenu 
+                  SetShowReportSave={SetShowReportSave} 
+                  setGetEnv={setGetEnv} 
+                  SetShowReportShow={SetShowReportShow} 
+                  setDisplayBlack={setDisplayBlack} 
+                  setTestType={setTestType}
+                  SetDisplayBlack={setDisplayBlack}
+                  settingExit={settingExit}
+                  setDisSet={setDisSet}
+                />
+              </div>
             </b>
             </div>
         </div>
