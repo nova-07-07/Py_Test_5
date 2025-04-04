@@ -21,6 +21,11 @@ if not exist "%ENV_DIR%" (
     exit /b 1
 )
 
+if not exist "%ENV_DIR%\Scripts\activate.bat" (
+    echo Error: Invalid virtual environment path -> %ENV_DIR%
+    exit /b 1
+)
+
 REM Get the original execution time
 FOR /F "tokens=2 delims==" %%I IN ('wmic os get localdatetime /value') DO SET DateTime=%%I
 SET Year=%DateTime:~0,4%
@@ -83,6 +88,11 @@ echo -----------------------
 
 REM Activate virtual environment
 CALL "%ENV_DIR%\Scripts\activate.bat"
+
+IF ERRORLEVEL 1 (
+    echo Error: Failed to activate virtual environment
+    exit /b 1
+)
 
 REM Ensure pytest is installed
 pip install --quiet pytest

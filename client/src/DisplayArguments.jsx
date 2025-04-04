@@ -33,7 +33,7 @@ const DisplayArguments = ({argArray , setArgInput , argInputs , startExecution ,
       <div className="boddd">
       {items.map((item, index) => (
         <div key={index} className="item_arg">
-          {item}
+          {item.replace("-","").replace("-","")}
           <h1>:</h1>
           <input
             className="input_val"

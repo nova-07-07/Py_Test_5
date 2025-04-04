@@ -8,9 +8,12 @@ import ReportSave from "./ReportSave.jsx";
 import ReportShow from "./ReportShow.jsx";
 import './Dashboard.css'
 import DisplayArguments from "./DisplayArguments.jsx";
+import { useNavigate } from "react-router-dom";
+
 
 function Dashboard() {
-  const [path, setPath] = useState("");
+  const navigate = useNavigate();
+  const [path, setPath] = useState("https://github.com/praveen-16-16/Python_Pytest");
   const [folderData, setFolderData] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [output, setOutput] = useState("");
@@ -61,16 +64,21 @@ function Dashboard() {
     
 
     setOutput("");
+    setArgObj([]);
+    setArgArray([]);
+    setArgInput([]);
     setFlode(true);
     const token = localStorage.getItem("token");
 
     try {
       const response = await axios.get(
-        `http://localhost:5000/get-folder?path=${encodeURIComponent(path)}`,
+        `http://localhost:5000/get-folder?path=${encodeURIComponent(path)}&testType=${encodeURIComponent(testType)}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+      console.log(testType);
+      
 
       setFolderData(response.data);
       
@@ -100,7 +108,7 @@ function Dashboard() {
       if (error.response?.status === 401) {
         alert("Unauthorized access! Please log in again.");
         localStorage.removeItem("token"); 
-        navigate("/");
+        navigate("/")
       } else {
         setFolderData(null);
       }

@@ -15,7 +15,7 @@ const List_item = ({ items, handleDelete, handleUse, envPath }) => {
           <span className="name">{item[0]}</span> 
           <div className="btns">
             <button className="deletebtn" onClick={() => handleDelete(index)}>Remove</button> 
-            <button className="usebtn" style={{ border: item[1] === envPath[1] ? "none" : "2px solid blue" }}  onClick={() => handleUse(item)}>{item[1] === envPath[1] ? <span className="gg"></span> : <span>Use</span>}</button>     
+            <button className="usebtn" style={{ border: item[1] === envPath[1] ? "none" : "2px solid blue" }}  onClick={() => handleUse(item[1])}>{item[1] === envPath[1] ? <span className="gg"></span> : <span>Use</span>}</button>     
           </div>
         </div>
       ))}
