@@ -11,11 +11,22 @@ import DisplayArguments from "./DisplayArguments.jsx";
 import { useNavigate } from "react-router-dom";
 
 function Dashboard() {
+  console.log("Token:", localStorage.getItem("token"));
 
-  const navigate = useNavigate()
-  if (!localStorage.getItem("token")) {
-    navigate("/signin");
-    return null; // Return null to prevent rendering further
+  const navigate = useNavigate();
+  const [spinner, setspinner] = useState(true); // New loading state
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/signin");
+    } else {
+      setspinner(false); // Token exists, allow rendering
+    }
+  }, [navigate]);
+
+  if (spinner) {
+    navigate("/signin"); // Or a loader/spinner
   }
   const [path, setPath] = useState("");
   const [folderData, setFolderData] = useState(null);
