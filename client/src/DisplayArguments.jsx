@@ -1,24 +1,40 @@
 import React, { useEffect, useState } from "react";
 import "./DisplayItems.css"; 
 
-const DisplayArguments = ({argArray , setArgInput , argInputs , startExecution , envpath , setDisplayArgComp ,setDisplayBlack}) => {
+const DisplayArguments = ({ argArray, setArgInput, argInputs, startExecution, envpath, setDisplayArgComp, setDisplayBlack }) => {
   const [items, setItems] = useState([]);
   const [values, setValues] = useState([]);
 
-  setDisplayBlack(true);
+  // Move setDisplayBlack inside useEffect to prevent re-renders
+  useEffect(() => {
+    setDisplayBlack(true);
+  }, [setDisplayBlack]);
 
   useEffect(() => {
     const res = argArray.map((val) => val[0]);
     setItems(res);
     setValues(res.map((val) => [val, ""]));
-  }, [argArray]);
+    setArgInput(res.map((val) => [val, ""])); 
+  }, [argArray, setArgInput]);
 
-  useEffect(() => {
-    setArgInput(argArray.map((val) => [val[0], ""])); 
-  }, [argArray]);
-  
+  function handleUse() {
+    for (let vv of values) {
+      if (vv[1] === "") {
+        alert(`${vv[0]} value is empty.`);
+        return;
+      }
+    }
+    
+    startExecution(envpath);
+    setDisplayArgComp(false);
+    setDisplayBlack(false);
+  }  
 
   function handleChange(index, val) {
+    setValues((prevValues) =>
+      prevValues.map((item, i) => (i === index ? [item[0], val] : item))
+    );
+    
     setArgInput((prevValues) =>
       prevValues.map((item, i) => (i === index ? [item[0], val] : item))
     );
@@ -28,12 +44,12 @@ const DisplayArguments = ({argArray , setArgInput , argInputs , startExecution ,
     <div className="main_container_dis-arg">
       <div className="nav_arg">
         <h2 className="tt-Arg">Arguments</h2>
-        <button className="uBtn" onClick={()=>{startExecution(envpath);setDisplayArgComp(false);setDisplayBlack(false);}}>Use</button>
+        <button className="uBtn" onClick={handleUse}>Use</button>
       </div>
       <div className="boddd">
       {items.map((item, index) => (
         <div key={index} className="item_arg">
-          {item.replace("-","").replace("-","")}
+          {item}
           <h1>:</h1>
           <input
             className="input_val"

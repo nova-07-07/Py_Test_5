@@ -2,14 +2,19 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
 import subprocess
+import ast
 import shutil
 from urllib.parse import urlparse
 from pymongo import MongoClient
 import bcrypt
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required ,get_jwt
 from flask_jwt_extended import get_jwt_identity
+from datetime import timedelta
+import random
+import string
+
+
 import uuid
-import ast
 
 # chech_arg
 
@@ -21,23 +26,21 @@ BAT_FILE_PATH = os.path.abspath("run_python_file.bat")
 
 os.makedirs(REPO_DIR, exist_ok=True)
 
-MONGO_URI = "mongodb+srv://nova:nova2346@nova.r5lap4p.mongodb.net/?retryWrites=true&w=majority&appName=nova"
+MONGO_URI = "mongodb://localhost:27017/"  # Local MongoDB connection
+
 try:
     client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)  # 5-second timeout
     db = client["user_database"]
     users_collection = db["users"]
     user_data_collection = db["user_data"]
-    reports_collection = db["reports"]\
+    reports_collection = db["reports"]
 
-    
-    
     # Attempt to ping the database
     client.admin.command('ping')
-    print("✅ Connected to MongoDB successfully!")
+    print("✅ Connected to local MongoDB successfully!")
 except Exception as e:
     print(f"❌ MongoDB Connection Error: {e}")
-    exit(1)  # Exit if DB connection fails  # Collection
-
+    exit(1)  # Exit if DB connection fails
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "Test_Execution_GUI")
 
 jwt = JWTManager(app)
@@ -81,9 +84,63 @@ def signin():
     if not user or not check_password(password, user["password"]):
         return jsonify({"error": "Invalid username or password"}), 401
 
-    access_token = create_access_token(identity=str(user["_id"]))
+    access_token = create_access_token(identity=str(user["_id"]), expires_delta=timedelta(hours=1))
+
     print(access_token)
     return jsonify({"access_token": access_token, "message": "Login successful"})
+
+otp_storage = {}
+
+def generate_otp():
+    """Generate a 6-digit OTP"""
+    return ''.join(random.choices(string.digits, k=6))
+
+@app.route("/forgot-password", methods=["POST"])
+def forgot_password():
+    data = request.json
+    username = data.get("name")
+
+    user = users_collection.find_one({"name": username})
+    if  not  user:
+        return jsonify({"error": "User not found"}), 404
+
+    otp = generate_otp()
+    otp_storage[username] = otp  # Save OTP for verification
+
+    # Simulating OTP sending (print instead of email/SMS)
+    print(f"OTP for {username}: {otp}")
+
+    return jsonify({"message": otp}), 200
+
+@app.route("/reset-password", methods=["POST"])
+def reset_password():
+    data = request.json
+    username = data.get("name")
+    new_password = data.get("password")
+    otp = data.get("otp")
+
+    if not username or not new_password or not otp:
+        return jsonify({"error": "All fields are required"}), 400
+
+    # Check if user exists
+    user = users_collection.find_one({"name": username})
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    # Validate OTP
+    stored_otp = otp_storage.get(username)
+    if  stored_otp  != otp:
+        return jsonify({"error": "Invalid OTP"}), 400
+
+    # Hash new password and update
+    hashed_password = hash_password(new_password)
+    users_collection.update_one({"name": username}, {"$set": {"password": hashed_password}})
+
+    # Remove OTP from storage after successful reset
+    del otp_storage[username]
+
+    return jsonify({"message": "Password reset successfully"}), 200
+
 
 @app.route("/logout", methods=["POST"])
 @jwt_required()
@@ -96,6 +153,21 @@ def logout():
 def check_if_token_in_blacklist(jwt_header, jwt_payload):
     return jwt_payload["jti"] in blacklist
 
+# @app.route("/verify-token", methods=["POST"])
+# def verify_token():
+#     auth_header = request.headers.get("Authorization")
+#     if not auth_header or not auth_header.startswith("Bearer "):
+#         return jsonify({"error": "Unauthorized"}), 401
+
+#     token = auth_header.split(" ")[1]
+
+#     try:
+#         jwt.decode(token, app.config["JWT_SECRET_KEY"], algorithms=["HS256"])
+#         return jsonify({"message": "Token is valid"}), 200
+#     except jwt.ExpiredSignatureError:
+#         return jsonify({"error": "Token expired"}), 401
+#     except jwt.InvalidTokenError:
+#         return jsonify({"error": "Invalid token"}), 401
 
 
 def get_folder_structure(path, test_type=None):
@@ -418,7 +490,7 @@ def check_arg():
 
     if not file_path:
         return jsonify({"error": "Missing path parameter"}), 400
-
+    print(file_path)
     try:
         response = extract_options(file_path)
         return jsonify(response)

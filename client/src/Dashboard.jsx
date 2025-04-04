@@ -8,12 +8,9 @@ import ReportSave from "./ReportSave.jsx";
 import ReportShow from "./ReportShow.jsx";
 import './Dashboard.css'
 import DisplayArguments from "./DisplayArguments.jsx";
-import { useNavigate } from "react-router-dom";
-
 
 function Dashboard() {
-  const navigate = useNavigate();
-  const [path, setPath] = useState("https://github.com/praveen-16-16/Python_Pytest");
+  const [path, setPath] = useState("");
   const [folderData, setFolderData] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [output, setOutput] = useState("");
@@ -33,6 +30,7 @@ function Dashboard() {
   const [argInputs , setArgInput] = useState([])
 
   function backgroundSelect() {
+
         SetShowReportSave(false);
         SetShowReportShow(false);
         setGetEnv(false);
@@ -40,6 +38,7 @@ function Dashboard() {
         setSettingExit(false);
         setDisplayArgComp(false);
   }
+  
 
   useEffect(()=>{
     if (!selectedFile?.path) {
@@ -77,8 +76,6 @@ function Dashboard() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      console.log(testType);
-      
 
       setFolderData(response.data);
       
@@ -100,8 +97,11 @@ function Dashboard() {
         traverse(obj);
         return result;
     }
+    console.log(response.data);
     
     setArgObj(findConftestPaths(response.data));
+    console.log(argObject);
+    
     } catch (error) {
       console.error("Error fetching folders:", error);
 
@@ -130,6 +130,7 @@ function Dashboard() {
   
     if (argObject.length !== 0) {
       let Argpath = null;
+      
   
       for (const element of argObject) {
         if (element.replace(/\\conftest\.py$/, '') === selectedFile.path.replace(/\\[^\\]*\.py$/, '')) {
@@ -145,6 +146,9 @@ function Dashboard() {
             setArgArray(response.data);
           } catch (error) {
             console.error("Execution error", error);
+            setOutput("Execution error", error);
+            setLoading(false);
+            return
           }
         }
       }
