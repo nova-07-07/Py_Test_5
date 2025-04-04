@@ -99,3 +99,10 @@
     text-align: center;
     margin-top: 20px;
   }
+  
+  .sp{
+    margin-right:60% ;
+  }
+ .error{
+  color: red;
+ }

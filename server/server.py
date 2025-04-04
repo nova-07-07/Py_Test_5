@@ -10,6 +10,9 @@ import bcrypt
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required ,get_jwt
 from flask_jwt_extended import get_jwt_identity
 from datetime import timedelta
+import random
+import string
+
 
 import uuid
 
@@ -86,6 +89,57 @@ def signin():
     print(access_token)
     return jsonify({"access_token": access_token, "message": "Login successful"})
 
+otp_storage = {}
+
+def generate_otp():
+    """Generate a 6-digit OTP"""
+    return ''.join(random.choices(string.digits, k=6))
+
+@app.route("/forgot-password", methods=["POST"])
+def forgot_password():
+    data = request.json
+    username = data.get("name")
+
+    user = users_collection.find_one({"name": username})
+    if  not  user:
+        return jsonify({"error": "User not found"}), 404
+
+    otp = generate_otp()
+    otp_storage[username] = otp  # Save OTP for verification
+
+    # Simulating OTP sending (print instead of email/SMS)
+    print(f"OTP for {username}: {otp}")
+
+    return jsonify({"message": otp}), 200
+
+@app.route("/reset-password", methods=["POST"])
+def reset_password():
+    data = request.json
+    username = data.get("name")
+    new_password = data.get("password")
+    otp = data.get("otp")
+
+    if not username or not new_password or not otp:
+        return jsonify({"error": "All fields are required"}), 400
+
+    # Check if user exists
+    user = users_collection.find_one({"name": username})
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    # Validate OTP
+    stored_otp = otp_storage.get(username)
+    if  stored_otp  != otp:
+        return jsonify({"error": "Invalid OTP"}), 400
+
+    # Hash new password and update
+    hashed_password = hash_password(new_password)
+    users_collection.update_one({"name": username}, {"$set": {"password": hashed_password}})
+
+    # Remove OTP from storage after successful reset
+    del otp_storage[username]
+
+    return jsonify({"message": "Password reset successfully"}), 200
 
 
 @app.route("/logout", methods=["POST"])
@@ -99,21 +153,21 @@ def logout():
 def check_if_token_in_blacklist(jwt_header, jwt_payload):
     return jwt_payload["jti"] in blacklist
 
-@app.route("/verify-token", methods=["POST"])
-def verify_token():
-    auth_header = request.headers.get("Authorization")
-    if not auth_header or not auth_header.startswith("Bearer "):
-        return jsonify({"error": "Unauthorized"}), 401
+# @app.route("/verify-token", methods=["POST"])
+# def verify_token():
+#     auth_header = request.headers.get("Authorization")
+#     if not auth_header or not auth_header.startswith("Bearer "):
+#         return jsonify({"error": "Unauthorized"}), 401
 
-    token = auth_header.split(" ")[1]
+#     token = auth_header.split(" ")[1]
 
-    try:
-        jwt.decode(token, app.config["JWT_SECRET_KEY"], algorithms=["HS256"])
-        return jsonify({"message": "Token is valid"}), 200
-    except jwt.ExpiredSignatureError:
-        return jsonify({"error": "Token expired"}), 401
-    except jwt.InvalidTokenError:
-        return jsonify({"error": "Invalid token"}), 401
+#     try:
+#         jwt.decode(token, app.config["JWT_SECRET_KEY"], algorithms=["HS256"])
+#         return jsonify({"message": "Token is valid"}), 200
+#     except jwt.ExpiredSignatureError:
+#         return jsonify({"error": "Token expired"}), 401
+#     except jwt.InvalidTokenError:
+#         return jsonify({"error": "Invalid token"}), 401
 
 
 def get_folder_structure(path):

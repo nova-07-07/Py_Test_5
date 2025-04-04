@@ -56,15 +56,87 @@ export function SignIn() {
       <h1>Sign In</h1>
       {error && <p style={{ color: "red" }}>{error}</p>}
       <form onSubmit={handleSubmit}>
+       
         <input type="text" style={{ color: "black" }} placeholder="Username" value={name} onChange={(e) => setName(e.target.value)} required />
+       
         <input type="password" style={{ color: "black" }} placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
         <button type="submit">Sign In</button>
       </form>
+      <Link to="/Forgot_password">Forgot Password</Link>
       <Link to="/signup">Don't have an account? Sign Up</Link>
     </div>
   );
 }
+function Reset() {
+  const navigate = useNavigate()
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [otp, setotp] = useState("")
+  const [error,setError] = useState("")
 
+  const handleSubmit = async () => {
+    if (!name || !password || !otp) {
+      setError("All fields are required!");
+      return;
+    }
+
+    try {
+      const response = await axios.post("http://localhost:5000/reset-password", {
+        name,
+        password,
+        otp,
+      });
+      alert(response.data.message);
+      navigate("/signin");
+    } catch (error) {
+      setError(error.response?.data?.error || "Failed to reset password");
+    }
+  };
+
+  return (
+    <div className="auth-container">
+        <h1>Reset Password</h1>
+        {error && <p style={{ color: "red" }}>{error}</p>}
+      <input type="text" style={{ color: "black" }} placeholder="Username" value={name} onChange={(e) => setName(e.target.value)} required />
+    
+      <input type="password" style={{ color: "black" }} placeholder="Enter new Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+      
+      <input type="number" maxLength={6} style={{ color: "black" }} placeholder="Enter OTP" value={otp} onChange={(e) => setotp(e.target.value)}  required />
+     
+      <button type="submit" onClick={handleSubmit}>save</button>
+    </div>
+  )
+}
+function Forgot_password() {
+  const navigate = useNavigate();
+  const [name, setName] = useState("");
+
+  const [error, setError] = useState("")
+
+  async function handleSubmit() {
+    if (name == "") {
+      setError("Enter user name")
+      return
+    }
+    try {
+      const response = await axios.post("http://localhost:5000/forgot-password", { name });
+      alert("Copy the OTP",);
+      alert(response.data.message)
+      navigate("/reset")
+    } catch (error) {
+      setError(error.response?.data?.error || "Failed to send OTP");
+    }
+
+  }
+  return (
+    <div className="auth-container">
+       {error && <p style={{ color: "red" }}>{error}</p>}
+      <input type="text" style={{ color: "black" }} placeholder="Username" value={name} onChange={(e) => setName(e.target.value)} required />
+
+      <button type="submit" onClick={handleSubmit}>verify</button>
+    </div>
+  )
+}
 
 function SignUp() {
   const navigate = useNavigate();
@@ -112,9 +184,9 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
-
+        <Route path="/Forgot_Password" element={<Forgot_password />} />
         <Route path="/dashboard" element={<Dashboard />} />
-
+        <Route path="/reset" element={<Reset />} />
       </Routes>
     </Router>
   );
