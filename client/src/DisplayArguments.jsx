@@ -47,19 +47,18 @@ const DisplayArguments = ({ argArray, setArgInput, argInputs, startExecution, en
         <button className="uBtn" onClick={handleUse}>Use</button>
       </div>
       <div className="boddd">
-        {items.map((item, index) => (
-          <div key={index} className="item_arg">
-            {item}
-            <h1>:</h1>
-            <input
-              className="input_val"
-              type="text"
-              value={argInputs[index]?.[1] || ""}
-              onChange={(e) => handleChange(index, e.target.value)}
-            />
-          </div>
-        ))}
-      </div>
+      {items.map((item, index) => (
+        <div key={index} className="item_arg">
+          {item.replace("--", "")}
+          <h1>:</h1>
+          <input
+            className="input_val"
+            type="text"
+            value={argInputs[index]?.[1] || ""}
+            onChange={(e) => handleChange(index, e.target.value)}
+          />
+        </div>
+      ))}</div>
     </div>
   );
 };

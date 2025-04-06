@@ -31,6 +31,7 @@ export default function VirtualEnvInput({ setEnvPath, setGetEnv, envPath , backg
 
   useEffect(() => {
     fetchEnvPaths();
+    console.log(items);;
   }, [refresh]);
 
   async function handleSetEnvPath() {
@@ -56,6 +57,8 @@ export default function VirtualEnvInput({ setEnvPath, setGetEnv, envPath , backg
 
       if (response.data.path) {
         const newPath = response.data.path;
+        console.log(newPath);
+        
         const newName = newPath.split(/[\\/]/).pop();
 
         if (items.some(([_, existingPath]) => existingPath === newPath)) {
@@ -89,7 +92,7 @@ export default function VirtualEnvInput({ setEnvPath, setGetEnv, envPath , backg
         data: { env_path: envPathToRemove },
       });
 
-      setRefresh((prev) => !prev); // Trigger re-fetch
+      setRefresh((prev) => !prev);
     } catch (err) {
       console.error("Error removing environment path:", err);
       alert("Failed to remove the environment path. Please try again.");

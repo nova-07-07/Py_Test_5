@@ -1,14 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./SettingsMenu.css";
 import { useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 
-export default function SettingsMenu({ setGetEnv, SetShowReportSave, SetShowReportShow, setDisplayBlack, setTestType }) {
+export default function SettingsMenu({ setGetEnv,settingExit, SetShowReportSave, SetShowReportShow, setDisplayBlack, setTestType ,setDisSet }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [testSettingsOpen, setTestSettingsOpen] = useState(false);
   const [reportsOpen, setReportsOpen] = useState(false);
   const [testType, setTestTypeVar] = useState("python");
   const[Username, setusername ] = useState("praveen")
+  
+  useEffect(()=>{
+    setDisSet(menuOpen);
+  },[menuOpen])
+
+  useEffect(()=>{
+    setMenuOpen(false);
+    setTestSettingsOpen(false);
+  },[settingExit])
   
   const navigate = useNavigate();
   

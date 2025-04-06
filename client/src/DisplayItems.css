@@ -15,7 +15,7 @@
     border-radius: 8px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.7);
     outline: 0;
-    overflow: auto;
+    overflow-y: scroll;
     padding: 10px;
     gap: 10px;
 }
@@ -30,7 +30,7 @@
     border: solid black 2px;
     border-top-right-radius: 10px;
     border-top-left-radius: 10px;
-    /* transition-duration: 0.5s; */
+    /* transition-duration: 0.5s;item_arg */
 }
 
 .tt-Arg{
@@ -43,17 +43,16 @@
     padding-top: 7px;
     padding-bottom: 11px;
     background-color: rgb(71, 67, 67);
-    /* margin-bottom: 7px; */
     height: 51px;
     animation: hoverEffect 0.5s forwards;
 
 }
 
 .boddd{
-    gap: 30px;
     display: flex ;
     flex-direction: column;
     align-items: center;
+    font-size: 23px;
 }
 
 @keyframes hoverEffect {
@@ -83,10 +82,20 @@
     padding: 10px;
     background-color: white;
     border-radius: 5px;
-    width: 100vh;
+    height: 50px;
+    margin-top: 10px ;
+    margin-bottom: 10px;
+    width: 100%;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
     /* margin-left: 40px;
     margin-right: 40px; */
+}
+
+.item_arg:hover{
+    background-color: rgb(226, 255, 198);
+    height: 60px;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 .input_val{

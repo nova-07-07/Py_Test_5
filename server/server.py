@@ -26,7 +26,7 @@ BAT_FILE_PATH = os.path.abspath("run_python_file.bat")
 
 os.makedirs(REPO_DIR, exist_ok=True)
 
-MONGO_URI = "mongodb://localhost:27017/"  # Local MongoDB connection
+MONGO_URI = "mongodb+srv://nova:nova2346@nova.r5lap4p.mongodb.net/?retryWrites=true&w=majority&appName=nova"  # Local MongoDB connection
 
 try:
     client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)  # 5-second timeout
@@ -170,24 +170,34 @@ def check_if_token_in_blacklist(jwt_header, jwt_payload):
 #         return jsonify({"error": "Invalid token"}), 401
 
 
-def get_folder_structure(path):
+def get_folder_structure(path, test_type=None):
     if not os.path.exists(path):
         return {"error": "Path does not exist"}
-    
+
+    # Define valid test file extensions
+    valid_extensions = {
+        "python": ".py",
+        "java": ".java",
+        "cucumber": ".feature",  # Cucumber BDD files
+    }
+
+    # Determine file extension filter
+    file_extension = valid_extensions.get(test_type.lower()) if test_type else None
+
     def traverse(directory):
         items = []
         try:
             for entry in os.scandir(directory):
                 if entry.is_dir():
                     sub_items = traverse(entry.path)
-                    if sub_items: 
+                    if sub_items or file_extension is None:  
                         items.append({
                             "name": entry.name,
                             "isfolder": True,
                             "path": entry.path,
                             "items": sub_items
                         })
-                elif entry.is_file() and entry.name.endswith(".py"):  
+                elif file_extension is None or entry.name.endswith(file_extension):  
                     items.append({
                         "name": entry.name,
                         "isfolder": False,
@@ -196,11 +206,11 @@ def get_folder_structure(path):
         except PermissionError:
             return []
         return items
-    
+
     folder_items = traverse(path)
 
     if not folder_items:
-        return {"error": "No Python files found"}
+        return {"error": "No matching files found"}
 
     return {
         "name": os.path.basename(path),
@@ -219,7 +229,7 @@ def clone_or_update_repo(git_url):
             return repo_path
         except subprocess.CalledProcessError:
             return None
-    else:  # Clone new repo
+    else:  
         try:
             subprocess.run(["git", "clone", "--depth", "1", git_url, repo_path], check=True)
             return repo_path
@@ -231,19 +241,23 @@ def clone_or_update_repo(git_url):
 @jwt_required()
 def get_folder():
     path = None
+    test_type = None
+
     if request.method == "GET":
-        path = request.args.get("path")  
+        path = request.args.get("path")
+        test_type = request.args.get("testType")
     else:
         data = request.json
-        path = data.get("path") 
+        path = data.get("path")
+        test_type = data.get("testType")
 
     if path.startswith("https://github.com/"):
         cloned_repo_path = clone_or_update_repo(path)
         if not cloned_repo_path:
             return jsonify({"error": "Failed to clone or update repository"})
-        path = cloned_repo_path 
+        path = cloned_repo_path
 
-    return jsonify(get_folder_structure(path))
+    return jsonify(get_folder_structure(path, test_type))
 
 @app.route("/execute", methods=["POST"])
 @jwt_required()
@@ -268,14 +282,12 @@ def execute_file_script():
     testType = request.json.get("testType")
     args = request.json.get("arg")
 
-    print(args)
 
     if isinstance(env_path, list):
         env_path = env_path[0] 
 
     file_path = os.path.abspath(file_path)
     env_path = os.path.abspath(env_path)
-
     if not os.path.exists(file_path) or not file_path.endswith(".py"):
         return jsonify({"error": "Invalid file path"}), 400
 
@@ -319,6 +331,7 @@ def update_env_path():
     email = get_jwt_identity()  # Get user email from token
     data = request.json
     new_env_path = data.get("env_path")
+    print(new_env_path)
 
     if not new_env_path:
         return jsonify({"error": "env_path is required"}), 400

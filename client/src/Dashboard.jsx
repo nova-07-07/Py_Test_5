@@ -8,26 +8,8 @@ import ReportSave from "./ReportSave.jsx";
 import ReportShow from "./ReportShow.jsx";
 import './Dashboard.css'
 import DisplayArguments from "./DisplayArguments.jsx";
-import { useNavigate } from "react-router-dom";
-
+import {  useNavigate } from "react-router-dom";
 function Dashboard() {
-  console.log("Token:", localStorage.getItem("token"));
-
-  const navigate = useNavigate();
-  const [spinner, setspinner] = useState(true); // New loading state
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/signin");
-    } else {
-      setspinner(false); // Token exists, allow rendering
-    }
-  }, [navigate]);
-
-  if (spinner) {
-    navigate("/signin"); // Or a loader/spinner
-  }
   const [path, setPath] = useState("");
   const [folderData, setFolderData] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -45,18 +27,31 @@ function Dashboard() {
   const [argObject , setArgObj] = useState([]);
   const [displayArgComp , setDisplayArgComp] = useState(false);
   const [argArray , setArgArray] = useState([]);
-  const [argInputs , setArgInput] = useState([])
-
+  const [argInputs , setArgInput] = useState([]);
+  const [disW,setDispW] = useState(false);
+  const [disSet , setDisSet] = useState(false);
+  const navigate = useNavigate();
+  if (!localStorage.getItem("token")) {
+    navigate("/signin")
+  }
   function backgroundSelect() {
-
         SetShowReportSave(false);
         SetShowReportShow(false);
         setGetEnv(false);
         setDisplayBlack(false)
         setSettingExit(false);
         setDisplayArgComp(false);
+        setDispW(false);
+        setSettingExit(!settingExit);
   }
   
+  useEffect(()=>{
+    if (disSet) {
+      setDispW(true);
+    }else{
+      setDispW(false);
+    }    
+  },[disSet])
 
   useEffect(()=>{
     if (!selectedFile?.path) {
@@ -81,18 +76,20 @@ function Dashboard() {
     
 
     setOutput("");
+    setArgObj([]);
+    setArgArray([]);
+    setArgInput([]);
+    setSelectedFile("");
     setFlode(true);
     const token = localStorage.getItem("token");x``
 
     try {
       const response = await axios.get(
-        `http://localhost:5000/get-folder?path=${encodeURIComponent(path)}`,
+        `http://localhost:5000/get-folder?path=${encodeURIComponent(path)}&testType=${encodeURIComponent(testType)}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      console.log(token);
-      
 
       setFolderData(response.data);
       
@@ -125,7 +122,7 @@ function Dashboard() {
       if (error.response?.status === 401) {
         alert("Unauthorized access! Please log in again.");
         localStorage.removeItem("token"); 
-        navigate("/");
+        navigate("/")
       } else {
         setFolderData(null);
       }
@@ -140,7 +137,7 @@ function Dashboard() {
       return;
     }
     if (!envpath) {
-      setGetEnv(true); // Show VirtualEnvInput
+      setGetEnv(true);
       setDisplayBlack(true);
       return;
     }
@@ -239,7 +236,6 @@ function Dashboard() {
     <>
     
      <div 
-     
       style={{ opacity: disBlack ? 0.2 : 1 }} 
       onClick={() => {
         if (disBlack) {
@@ -277,17 +273,18 @@ function Dashboard() {
                   {loading ? "Stop" : "Run"}
                 </button>
               </div>
-              
-              <SettingsMenu 
-                SetShowReportSave={SetShowReportSave} 
-                setGetEnv={setGetEnv} 
-                SetShowReportShow={SetShowReportShow} 
-                setDisplayBlack={setDisplayBlack} 
-                setTestType={setTestType}
-                SetDisplayBlack={setDisplayBlack}
-                setSettingExit={setSettingExit}
-                settingExit={settingExit}
-              />
+              <div onClick={(e) => e.stopPropagation()}>
+                <SettingsMenu 
+                  SetShowReportSave={SetShowReportSave} 
+                  setGetEnv={setGetEnv} 
+                  SetShowReportShow={SetShowReportShow} 
+                  setDisplayBlack={setDisplayBlack} 
+                  setTestType={setTestType}
+                  SetDisplayBlack={setDisplayBlack}
+                  settingExit={settingExit}
+                  setDisSet={setDisSet}
+                />
+              </div>
             </b>
             </div>
         </div>
