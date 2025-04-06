@@ -87,7 +87,7 @@ def signin():
     access_token = create_access_token(identity=str(user["_id"]), expires_delta=timedelta(hours=1))
 
     print(access_token)
-    return jsonify({"access_token": access_token, "message": "Login successful"})
+    return jsonify({"access_token": access_token, "username": username})
 
 otp_storage = {}
 

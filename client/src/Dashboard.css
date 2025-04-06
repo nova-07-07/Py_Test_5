@@ -50,7 +50,8 @@
 .inputdev{
     display: flex;
     flex-direction: row;
-    width: max-content;
+    width: 70%;
+    
 }
 
 .pathIn{
@@ -66,12 +67,15 @@
 
 
 .gobtn{
-    margin-left: 10px;
-    height: 100%;
+    margin-left: 20px;
+    border: white solid 1px;
+    font-weight: bold;
+    height: 40px;
+    padding-left: 10px;
     border-radius: 5px;
-    width: 40px;
-    color: aliceblue;
-    background-color: brown;
+    padding-right: 10px; 
+    background-color:gray;
+    color: rgb(0, 0, 0);
 }
 
 .output{
@@ -107,7 +111,7 @@
     padding-left: 10px;
     border-radius: 5px;
     padding-right: 10px; 
-    background-color: rgb(0, 216, 0);
+    background-color:gray;
     color: rgb(0, 0, 0);
 }
 

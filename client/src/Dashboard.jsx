@@ -82,7 +82,7 @@ function Dashboard() {
 
     setOutput("");
     setFlode(true);
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");x``
 
     try {
       const response = await axios.get(
@@ -237,7 +237,9 @@ function Dashboard() {
 
   return (
     <>
+    
      <div 
+     
       style={{ opacity: disBlack ? 0.2 : 1 }} 
       onClick={() => {
         if (disBlack) {
@@ -248,6 +250,7 @@ function Dashboard() {
 
         <div className="nav">
         <div className="nav_one" style={{ display: "flex" }}>
+          
             <span className="hed">Test Execution GUI</span>
             <div className="inputdev">
               <input
@@ -316,6 +319,7 @@ function Dashboard() {
       {showReportSave && <ReportSave SetShowReportSave={SetShowReportSave} output={output} backgroundSelect={backgroundSelect}/>}
       { showReportShow && <ReportShow /> }
       { displayArgComp && <DisplayArguments argArray={argArray} setArgInput={setArgInput} argInputs={argInputs} startExecution={startExecution} envpath={envpath} setDisplayArgComp={setDisplayArgComp} setDisplayBlack={setDisplayBlack}/>}
+      
     </>
   );
 }

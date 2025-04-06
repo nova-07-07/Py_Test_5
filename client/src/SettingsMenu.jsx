@@ -1,12 +1,14 @@
 import { useState } from "react";
 import "./SettingsMenu.css";
 import { useNavigate } from "react-router-dom";
+import { FaUserCircle } from "react-icons/fa";
 
 export default function SettingsMenu({ setGetEnv, SetShowReportSave, SetShowReportShow, setDisplayBlack, setTestType }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [testSettingsOpen, setTestSettingsOpen] = useState(false);
   const [reportsOpen, setReportsOpen] = useState(false);
   const [testType, setTestTypeVar] = useState("python");
+  const[Username, setusername ] = useState("praveen")
   
   const navigate = useNavigate();
   
@@ -19,6 +21,7 @@ export default function SettingsMenu({ setGetEnv, SetShowReportSave, SetShowRepo
       
       if (response.ok) {
         localStorage.removeItem("token"); 
+        localStorage.removeItem("username");
       } 
       navigate("/");
     } catch (error) {
@@ -58,6 +61,11 @@ export default function SettingsMenu({ setGetEnv, SetShowReportSave, SetShowRepo
       {menuOpen && !testSettingsOpen && !reportsOpen && (
         <div className="menu-container">
           <ul>
+            <li>
+            
+            <FaUserCircle size={25} className="userlogo" /><span className="name">{localStorage.getItem("username")}</span>
+
+            </li>
             <li>
               <button className="btn_select" onClick={handleLogout}>
                 Logout
