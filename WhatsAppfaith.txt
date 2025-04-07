@@ -1,0 +1,27 @@
+<!-- const [zoomLevel, setZoomLevel] = useState(Math.round(window.devicePixelRatio * 100));
+
+  useEffect(() => {
+    const handleResize = () => {
+      const divider = document.getElementById("drag-divider");
+      const left = divider?.previousElementSibling;
+      const right = divider?.nextElementSibling;
+    
+      if (!left || !right || !divider) return;
+    
+      const containerWidth = divider.parentNode.offsetWidth;
+      const leftWidth = left.offsetWidth;
+      const rightWidth = containerWidth - leftWidth - divider.offsetWidth;
+    
+      if (rightWidth > 100) {
+        right.style.width = `${rightWidth}px`;
+      }
+    
+      // update zoom if needed
+      const currentZoom = Math.round(window.devicePixelRatio * 100);
+      setZoomLevel(currentZoom);
+    };
+    
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []); -->

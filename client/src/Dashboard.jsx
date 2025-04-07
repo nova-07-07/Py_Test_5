@@ -31,6 +31,7 @@ function Dashboard() {
   const [disW,setDispW] = useState(false);
   const [disSet , setDisSet] = useState(false);
   const navigate = useNavigate();
+
   if (!localStorage.getItem("token")) {
     navigate("/signin")
   }
@@ -63,8 +64,7 @@ function Dashboard() {
   },[envpath])
 
   useEffect(()=>{
-    
-    
+    setSettingExit(!settingExit);
   },[settingExit])
 
   const fetchFolders = async () => {
@@ -158,7 +158,6 @@ function Dashboard() {
   
     setFlode(false);
   };
-    
 
   const executePythonFile = async () => {
     if (!selectedFile?.path) {
@@ -203,8 +202,6 @@ function Dashboard() {
     }
     startExecution(envpath);
   };
-  
-  
 
   const startExecution = async (envPath) => {
     if (!envPath) {
@@ -261,6 +258,47 @@ function Dashboard() {
     }
   };
 
+  useEffect(() => {
+  const divider = document.getElementById("drag-divider");
+  const left = divider?.previousElementSibling;
+  const right = divider?.nextElementSibling;
+
+  let isDragging = false;
+
+  const handleMouseDown = (e) => {
+    isDragging = true;
+    document.body.style.cursor = "col-resize";
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+
+    const containerWidth = divider.parentNode.offsetWidth;
+    const leftWidth = e.clientX;
+    const rightWidth = containerWidth - leftWidth - divider.offsetWidth;
+
+    if (leftWidth > 100 && rightWidth > 100) {
+      left.style.width = `${leftWidth}px`;
+      right.style.width = `${rightWidth}px`;
+    }
+  };
+
+  const handleMouseUp = () => {
+    isDragging = false;
+    document.body.style.cursor = "default";
+  };
+
+  divider?.addEventListener("mousedown", handleMouseDown);
+  window.addEventListener("mousemove", handleMouseMove);
+  window.addEventListener("mouseup", handleMouseUp);
+
+  return () => {
+    divider?.removeEventListener("mousedown", handleMouseDown);
+    window.removeEventListener("mousemove", handleMouseMove);
+    window.removeEventListener("mouseup", handleMouseUp);
+  };
+}, []);
+
   return (
     <>
     
@@ -311,6 +349,7 @@ function Dashboard() {
                   setTestType={setTestType}
                   SetDisplayBlack={setDisplayBlack}
                   settingExit={settingExit}
+                  setSettingExit={setSettingExit}
                   setDisSet={setDisSet}
                 />
               </div>
@@ -323,21 +362,31 @@ function Dashboard() {
           backgroundSelect()
           }
         }}>
-          <div className="left">
-            {flode ? <h1>Loading...</h1> : <FolderView folderData={folderData || {}} setSelectedFile={setSelectedFile} />}
+          <div className="split-container">
+            <div className="left">
+              {flode ? (
+                <h1>Loading...</h1>
+              ) : (
+                <FolderView folderData={folderData || {}} setSelectedFile={setSelectedFile} />
+              )}
+            </div>
+
+            <div className="divider" id="drag-divider"></div>
+
+            <div className="right">
+              {selectedFile ? (
+                <div className="right-1">
+                  <h2 className="ter-tit">Output</h2>
+                  <pre className="output">
+                    {loading ? "Running..." : `${output}`}
+                  </pre>
+                </div>
+              ) : (
+                <h1 className="ter-tit">Click a Python file to select</h1>
+              )}
+            </div>
           </div>
-          <div className="right">
-            {selectedFile ? (
-              <div className="right-1">
-                <h2 className="ter-tit">Output</h2>
-                <pre className="output">
-                  {loading ? "Running..." : `${output}`}
-                </pre>
-              </div>
-            ) : (
-              <h1 className="ter-tit">Click a Python file to select</h1>
-            )}
-          </div>
+
         </div>
       </div>
 

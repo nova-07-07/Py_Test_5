@@ -3,7 +3,7 @@ import "./SettingsMenu.css";
 import { useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 
-export default function SettingsMenu({ setGetEnv,settingExit, SetShowReportSave, SetShowReportShow, setDisplayBlack, setTestType ,setDisSet }) {
+export default function SettingsMenu({ setGetEnv,settingExit, SetShowReportSave, SetShowReportShow, setDisplayBlack, setTestType ,setDisSet , setSettingExit}) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [testSettingsOpen, setTestSettingsOpen] = useState(false);
   const [reportsOpen, setReportsOpen] = useState(false);
@@ -48,6 +48,7 @@ export default function SettingsMenu({ setGetEnv,settingExit, SetShowReportSave,
             setReportsOpen(!reportsOpen);
             setTestSettingsOpen(false);
             setMenuOpen(false);
+            setSettingExit(true);
           }}
           title="Reports"
         >
@@ -59,6 +60,7 @@ export default function SettingsMenu({ setGetEnv,settingExit, SetShowReportSave,
             setReportsOpen(false);
             setTestSettingsOpen(false);
             setMenuOpen(!menuOpen);
+            setSettingExit(true);
           }}
           title="Settings"
         >
