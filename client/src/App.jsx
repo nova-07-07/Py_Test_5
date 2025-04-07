@@ -40,6 +40,9 @@ export function SignIn() {
         const data = await response.json();
         console.log("Received Token:", data.access_token);
         localStorage.setItem("token", data.access_token);
+        localStorage.setItem("username",data.username)
+        console.log("username",data.username);
+        
         console.log("Token after set:", localStorage.getItem("token"));
         navigate("/home_page");
 

@@ -8,7 +8,7 @@ import ReportSave from "./ReportSave.jsx";
 import ReportShow from "./ReportShow.jsx";
 import './Dashboard.css'
 import DisplayArguments from "./DisplayArguments.jsx";
-
+import {  useNavigate } from "react-router-dom";
 function Dashboard() {
   const [path, setPath] = useState("");
   const [folderData, setFolderData] = useState(null);
@@ -30,7 +30,10 @@ function Dashboard() {
   const [argInputs , setArgInput] = useState([]);
   const [disW,setDispW] = useState(false);
   const [disSet , setDisSet] = useState(false);
-
+  const navigate = useNavigate();
+  if (!localStorage.getItem("token")) {
+    navigate("/signin")
+  }
   function backgroundSelect() {
         SetShowReportSave(false);
         SetShowReportShow(false);
@@ -76,14 +79,8 @@ function Dashboard() {
     setArgInput([]);
     setSelectedFile("");
     setFlode(true);
-  
     const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Something is wrong. Please login again.");
-      navigate("/signin");
-      return;
-    }
-  
+
     try {
       const response = await axios.get(
         `http://localhost:5000/get-folder?path=${encodeURIComponent(path)}&testType=${encodeURIComponent(testType)}`,
@@ -266,10 +263,11 @@ function Dashboard() {
 
   return (
     <>
+    
      <div 
-      style={{ opacity: (disBlack) ? 0.2 : 1 }} 
-      onClick={() => {  // this onclick appley whitout SettingsMenu how
-        if (disBlack || disW) {
+      style={{ opacity: disBlack ? 0.2 : 1 }} 
+      onClick={() => {
+        if (disBlack) {
           backgroundSelect();
         }
       }}
@@ -277,6 +275,7 @@ function Dashboard() {
 
         <div className="nav">
         <div className="nav_one" style={{ display: "flex" }}>
+          
             <span className="hed">Test Execution GUI</span>
             <div className="inputdev">
               <input
@@ -346,6 +345,7 @@ function Dashboard() {
       {showReportSave && <ReportSave SetShowReportSave={SetShowReportSave} output={output} backgroundSelect={backgroundSelect}/>}
       { showReportShow && <ReportShow /> }
       { displayArgComp && <DisplayArguments argArray={argArray} setArgInput={setArgInput} argInputs={argInputs} startExecution={startExecution} envpath={envpath} setDisplayArgComp={setDisplayArgComp} setDisplayBlack={setDisplayBlack}/>}
+      
     </>
   );
 }
