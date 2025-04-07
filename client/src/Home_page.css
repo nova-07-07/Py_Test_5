@@ -1,0 +1,96 @@
+.home_page_All {
+    width: 100%;
+    height: 100vh;
+    background-color: #f4f6f8;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.home_page_nav {
+    display: flex;
+    padding: 1%;
+    justify-content: flex-end;
+    background-color: #4b7bec;
+    width: 100%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.DashGoBtn {
+    border-radius: 25px;
+    border: none;
+    padding: 8px 16px;
+    background-color: #f7b731;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.DashGoBtn:hover {
+    background-color: #f5a623;
+    transform: scale(1.05);
+}
+
+.home_page_body {
+    display: flex;
+    padding-top: 20px;
+    height: 80vh;
+    justify-content: space-around;
+}
+
+.home_page_URL_DIV,
+.home_page_env {
+    width: 45%;
+    border-radius: 16px;
+    padding: 20px;
+    background: linear-gradient(to bottom right, #fd746c, #ff9068);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    color: white;
+    overflow-y: auto;
+    max-height: 80vh;
+}
+
+.home_page_li_l_path{
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    margin: 20px;
+    padding: 10px 16px;
+    transition: background-color 0.3s;
+}
+
+.home_page_ul_l {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 100%;
+    padding: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
+}
+
+.home_page_li_l {
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 10px 16px;
+    transition: background-color 0.3s;
+}
+.home_page_li_l_path:hover,
+.home_page_li_l:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.home_page_indexno {
+    font-weight: bold;
+    color: #fff;
+    margin-right: 12px;
+    min-width: 50px;
+    text-align: right;
+}
+
+.home_page_name {
+    color: #fff;
+    font-size: 1rem;
+}

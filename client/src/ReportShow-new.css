@@ -5,6 +5,27 @@
     padding: 10px;
   }
 
+  .imgBtn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+}
+
+.imgBtn:hover {
+    transform: scale(1.1);
+}
+
+.download_icon {
+    width: 104px;
+    height: 34px;
+}
+
+
   .save_r_body{
     display: flex;
     flex-direction: column;

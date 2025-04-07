@@ -54,7 +54,13 @@ def check_password(password, hashed):
 
 def initialize_user_data(email):
     if not user_data_collection.find_one({"email": email}):
-        user_data_collection.insert_one({"email": email, "env_path": [], "report": []})
+        user_data_collection.insert_one({
+            "email": email,
+            "env_path": [],
+            "report": [],
+            "used_paths": []  
+        })
+
 
 @app.route("/signup", methods=["POST"])
 def signup():
@@ -498,7 +504,37 @@ def check_arg():
         print(f"Error processing file: {str(e)}")  # Log error
         return jsonify({"error": str(e)}), 500
 
+@app.route("/store-used-path", methods=["POST"])
+@jwt_required()
+def store_used_path():
+    email = get_jwt_identity()
+    data = request.get_json()
+    used_path = data.get("used_path")
 
+    if not used_path:
+        return jsonify({"error": "used_path is required"}), 400
+
+    initialize_user_data(email)
+
+    user_data_collection.update_one(
+        {"email": email},
+        {"$addToSet": {"used_paths": used_path}}  # addToSet prevents duplicates
+    )
+
+    return jsonify({"message": "Used path stored successfully"}), 200
+
+
+@app.route("/get-used-paths", methods=["GET"])
+@jwt_required()
+def get_used_paths():
+    email = get_jwt_identity()
+    
+    user_data = user_data_collection.find_one({"email": email}, {"used_paths": 1, "_id": 0})
+    
+    if not user_data or "used_paths" not in user_data:
+        return jsonify({"used_paths": []}), 200
+
+    return jsonify({"used_paths": user_data["used_paths"]}), 200
 
 
 

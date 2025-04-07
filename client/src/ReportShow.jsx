@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import './ReportShow-new.css';
+import downlode from '../public/downlode.png'
 
 const ReportShow = () => {
     const [items, setItems] = useState([]);
@@ -84,7 +85,7 @@ const ReportShow = () => {
             boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.7)",
             outline: 0,
             overflow: "auto",
-            padding: "20px",
+            padding: "0px",
         }}>
             <div className="sidebar">
                 <h1 className="top_bar">
@@ -114,7 +115,9 @@ const ReportShow = () => {
 
             <div className="save_r_body">
                 <div className="save_r_body_nav">
-                    <button onClick={handleDownload} className="download_btn">{itemName == null ? <></> : <>{itemName} 🔻</>}</button>
+                <button title={`Download report- ${itemName}.txt`} onClick={handleDownload} className="download_btn imgBtn">
+                    {itemName && <img src={downlode} alt="Download" className="download_icon" />}
+                </button>   
                 </div>
                 <div className="body_content">
                     <pre>{content}</pre>

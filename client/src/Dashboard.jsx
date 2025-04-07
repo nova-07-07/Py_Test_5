@@ -69,17 +69,21 @@ function Dashboard() {
       alert("Please enter a valid path.");
       return;
     }
-
-    
-
+  
     setOutput("");
     setArgObj([]);
     setArgArray([]);
     setArgInput([]);
     setSelectedFile("");
     setFlode(true);
+  
     const token = localStorage.getItem("token");
-
+    if (!token) {
+      alert("Something is wrong. Please login again.");
+      navigate("/signin");
+      return;
+    }
+  
     try {
       const response = await axios.get(
         `http://localhost:5000/get-folder?path=${encodeURIComponent(path)}&testType=${encodeURIComponent(testType)}`,
@@ -87,46 +91,77 @@ function Dashboard() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-
-      setFolderData(response.data);
-      
+  
+      const data = response.data;
+  
+      if (!data || !data.items || data.items.length === 0) {
+        // Don't store path if data is empty or invalid
+        alert("No folders found in the given path.");
+        setFolderData(null);
+        setFlode(false);
+        return;
+      }
+  
+      setFolderData(data);
+  
+      // Traverse folder structure to find conftest.py
       function findConftestPaths(obj) {
         let result = [];
-    
+  
         function traverse(node) {
-            if (!node || !node.items) return;
-            
-            for (let item of node.items) {
-                if (!item.isfolder && item.name === "conftest.py") {
-                    result.push(item.path);
-                } else if (item.isfolder) {
-                    traverse(item);
-                }
+          if (!node || !node.items) return;
+  
+          for (let item of node.items) {
+            if (!item.isfolder && item.name === "conftest.py") {
+              result.push(item.path);
+            } else if (item.isfolder) {
+              traverse(item);
             }
+          }
         }
-        
+  
         traverse(obj);
         return result;
-    }
-    console.log(response.data);
-    
-    setArgObj(findConftestPaths(response.data));
-    console.log(argObject);
-    
+      }
+  
+      const conftestPaths = findConftestPaths(data);
+      setArgObj(conftestPaths);
+      console.log("conftest paths:", conftestPaths);
+  
+      // Only store the path if everything is valid
+      try {
+        const storeResponse = await axios.post(
+          "http://localhost:5000/store-used-path",
+          { used_path: path },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+  
+        if (!storeResponse.data.message) {
+          console.log("Warning: Path stored but no message returned.");
+        }
+      } catch (error) {
+        console.error("Error storing used path:", error);
+      }
+  
     } catch (error) {
       console.error("Error fetching folders:", error);
-
+  
       if (error.response?.status === 401) {
         alert("Unauthorized access! Please log in again.");
-        localStorage.removeItem("token"); 
-        navigate("/")
+        localStorage.removeItem("token");
+        navigate("/");
       } else {
         setFolderData(null);
       }
     }
-
+  
     setFlode(false);
   };
+    
 
   const executePythonFile = async () => {
     if (!selectedFile?.path) {

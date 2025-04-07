@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from "react
 import { useState } from "react";
 import axios from "axios";
 import Dashboard from "./Dashboard";
+import HomePage from "./HomePage"
 
 import "./Authentication.css"
 
@@ -40,7 +41,7 @@ export function SignIn() {
         console.log("Received Token:", data.access_token);
         localStorage.setItem("token", data.access_token);
         console.log("Token after set:", localStorage.getItem("token"));
-        navigate("/dashboard");
+        navigate("/home_page");
 
       } else {
         const errorData = await response.json();
@@ -187,6 +188,7 @@ function App() {
         <Route path="/Forgot_Password" element={<Forgot_password />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/reset" element={<Reset />} />
+        <Route path="/home_page" element={<HomePage />} />
       </Routes>
     </Router>
   );
