@@ -48,7 +48,7 @@ if db_name == "mongo":
         exit(1)  # Exit if DB connection fails0
 elif db_name == "postgres":
     try:
-        
+      
         conn = psycopg2.connect(dsn)
         cur = conn.cursor()
 
@@ -375,6 +375,19 @@ def clone_or_update_repo(git_url):
             shutil.rmtree(repo_path, ignore_errors=True)
             return None
 
+'''
+This route handles both GET and POST requests to fetch the folder structure.
+
+- For GET requests:
+    - Expects 'path' and 'testType' as query parameters.
+- For POST requests:
+    - Expects 'path' and 'testType' in the JSON body.
+
+If the provided path is a GitHub URL, it tries to clone or update the repository.
+Then, it returns the folder structure using the `get_folder_structure` function.
+
+JWT authentication is required to access this route.
+'''
 @app.route("/get-folder", methods=["GET", "POST"])
 @jwt_required()
 def get_folder():
@@ -397,7 +410,23 @@ def get_folder():
 
     return jsonify(get_folder_structure(path, test_type))
 
+'''
+This route handles POST requests to execute a Python script in a specified virtual environment.
 
+Expected JSON fields in the request:
+- file_path: Path to the Python script to execute.
+- env_path: Path to the virtual environment to use.
+- testType: A string to indicate the type of test (can be passed to the script).
+- arg: (Optional) List of arguments to pass to the script.
+
+Key steps:
+- Validates and normalizes the provided paths.
+- Flattens the arguments list if it contains nested lists.
+- Runs the script using a `.bat` file and the subprocess module.
+- Captures and returns stdout, stderr, and return code.
+- Optionally prints debug information and allows for saving results to MongoDB or PostgreSQL.
+- JWT authentication is required to access this route.
+'''
 @app.route("/execute-script", methods=["POST"])
 @jwt_required()
 def execute_file_script():
@@ -461,7 +490,20 @@ def execute_file_script():
         return jsonify({"error": str(e)}), 500
 
 
-    
+'''
+This route handles POST requests to validate a given Python virtual environment path.
+
+Expected JSON field in the request:
+- envPath: The path to the virtual environment.
+
+What it does:
+- Converts the given path to an absolute path.
+- Checks if the path exists and contains the 'Scripts/activate.bat' file (Windows-specific).
+- Returns a success message if the environment is valid.
+- Returns an error message if the path is invalid or missing the activation script.
+
+JWT authentication is required to access this route.
+'''    
 @app.route("/validate-env-path", methods=["POST"])
 @jwt_required()
 def validate_env_path():
@@ -488,7 +530,23 @@ def validate_env_path():
         }), 400
 
 
+'''
+This route handles POST requests to update the user's Python virtual environment paths.
 
+Expected JSON field in the request:
+- env_path: The new environment path to be saved.
+
+Behavior:
+- Authenticates the user using JWT and retrieves their email.
+- Depending on the configured database (MongoDB or PostgreSQL), it stores the new environment path:
+    - MongoDB: Adds the path to the `env_path` array in the `user_data_collection` (if not already present).
+    - PostgreSQL: Adds the path to the `env_path` array column in the `user_data` table (if not already present).
+- Ensures the environment path is not duplicated.
+- Initializes user data if required (MongoDB).
+- Returns success or error messages based on the outcome.
+
+JWT authentication is required to access this route.
+'''
 @app.route("/update-env-path", methods=["POST"])
 @jwt_required()
 def update_env_path():
@@ -543,7 +601,20 @@ def update_env_path():
 
 # Route 2: Update Report
 
+'''
+This route handles GET requests to retrieve the list of Python virtual environment paths
+saved for the authenticated user.
 
+Behavior:
+- Retrieves the user’s email from the JWT token.
+- Depending on the configured database:
+    - MongoDB: Queries the `user_data_collection` for the `env_path` field.
+    - PostgreSQL: Queries the `user_data` table for the `env_path` array column.
+- If no paths are found, returns an empty list.
+- Returns the list of environment paths as a JSON response.
+
+JWT authentication is required to access this route.
+'''
 @app.route("/get-env-paths", methods=["GET"])
 @jwt_required()
 def get_env_paths():
@@ -573,6 +644,24 @@ def get_env_paths():
         return jsonify({"env_paths": result[0]}), 200  # env_path is returned as array
 
 
+'''
+This route handles DELETE requests to remove a specific Python virtual environment path 
+associated with the authenticated user.
+
+Expected JSON field in the request:
+- env_path: The path to be removed.
+
+Behavior:
+- Extracts the user's email from the JWT token.
+- Checks for the presence of the `env_path` field in the request body.
+- Based on the configured database:
+    - MongoDB: Uses `$pull` to remove the path from the `env_path` array in `user_data_collection`.
+    - PostgreSQL: Uses `array_remove` to update the `env_path` array column in the `user_data` table.
+- Returns a success message if the path is removed.
+- Returns an error message if the path is not found or already removed.
+
+JWT authentication is required to access this route.
+'''
 @app.route("/remove-env-path", methods=["DELETE"])
 @jwt_required()
 def remove_env_path():
@@ -624,7 +713,24 @@ def remove_env_path():
     else:
         return jsonify({"error": "Invalid database type"}), 400
 
+'''
+This route handles POST requests to update a report for the authenticated user.
 
+Expected JSON fields in the request:
+- report_id: The ID of the report to be updated.
+- name: The name of the report.
+
+Behavior:
+- Extracts the user's email from the JWT token.
+- Checks that both the `report_id` and `name` are provided in the request.
+- Based on the configured database:
+    - MongoDB: Uses `$addToSet` to add the report ID and name to the `report` field of the user's document in the `user_data_collection`.
+    - PostgreSQL: Fetches the current list of reports, adds the new report entry (if not already present), and performs an upsert operation to update the reports.
+- Returns a success message if the report is updated successfully.
+- Returns an error message if required fields are missing or there is an issue with the database.
+
+JWT authentication is required to access this route.
+'''
 @app.route("/update-report", methods=["POST"])
 @jwt_required()
 def update_report():
@@ -687,7 +793,26 @@ def update_report():
             return jsonify({"error": str(e)}), 500
 
 
+'''
+This route handles POST requests to create a new script, store its content, 
+and save metadata in the database.
 
+Expected JSON fields in the request:
+- name: The name of the script.
+- script: The actual content of the script.
+
+Behavior:
+- Extracts the user's ID from the JWT token.
+- Validates that both the script name and content are provided.
+- Generates a unique report ID using UUID.
+- Based on the configured database:
+    - MongoDB: Creates a new document in the `reports_collection` with the script's metadata (`name`, `script_content`, `user_id`).
+    - PostgreSQL: Inserts the script data into the `reports` table.
+- Returns a success message with the report ID after the script is successfully stored.
+- Returns an error message if required fields are missing or if there is an issue with the database.
+
+JWT authentication is required to access this route.
+'''
 @app.route("/create-script", methods=["POST"])
 @jwt_required()
 def create_script():
@@ -744,7 +869,23 @@ def create_script():
 
     else:
         return jsonify({"error": "Invalid database type"}), 400
-    
+
+'''
+This route handles GET requests to retrieve a script based on the provided report ID.
+
+Expected URL parameter:
+- report_id: The unique identifier for the script.
+
+Behavior:
+- Extracts the user's ID from the JWT token.
+- Based on the configured database:
+    - MongoDB: Searches for a document in `reports_collection` matching the report ID and user ID, returning the script content if found.
+    - PostgreSQL: Retrieves the script name and content from the `reports` table based on the report ID and user ID.
+- Returns the script's content and report ID if found.
+- Returns an error message if the report is not found or if there's a database issue.
+
+JWT authentication is required to access this route.
+'''    
 @app.route("/get-script/<report_id>", methods=["GET"])
 @jwt_required()
 def get_script(report_id):
@@ -797,7 +938,18 @@ def get_script(report_id):
 
 
 
+'''
+This route handles GET requests to fetch all reports for a user based on their email (or user ID) extracted from the JWT token.
 
+Expected behavior:
+- Extracts the user's email or ID from the JWT token.
+- Based on the configured database:
+    - MongoDB: Retrieves all reports associated with the user's email from the `reports_collection`.
+    - PostgreSQL: Queries the `reports` table for reports associated with the user's email, including report ID, title, content, and creation timestamp.
+- The function converts any MongoDB ObjectId to a string before returning the reports.
+- In PostgreSQL, the creation timestamp is formatted in ISO 8601 format.
+- Returns a list of reports for the user or an error message if something goes wrong.
+'''
 @app.route("/get-user-reports", methods=["GET"])
 @jwt_required()
 def get_user_reports():
@@ -871,6 +1023,18 @@ def extract_options(file_path):
             ])
     return options
 
+'''
+This route handles POST requests to check arguments in a specified file.
+
+Expected behavior:
+- The route receives a JSON payload containing a "path" parameter, which is expected to be the file path.
+- If the "path" parameter is missing, it returns an error response with status code 400.
+- If the "path" parameter is provided, it tries to extract options from the file located at the given path using the `extract_options` function.
+- If the extraction is successful, the response is returned as JSON.
+- If any error occurs during the extraction, it logs the error and returns a 500 error response with the error message.
+
+This route is typically used for processing files and extracting specific options from them based on the provided file path.
+'''
 @app.route("/chech_arg", methods=["POST"])
 def check_arg():
     data = request.get_json()
@@ -886,6 +1050,20 @@ def check_arg():
         print(f"Error processing file: {str(e)}")  # Log error
         return jsonify({"error": str(e)}), 500
 
+'''
+This route handles storing a used path for a specific user.
+
+Expected behavior:
+- The route receives a POST request containing a "used_path" parameter in the JSON body.
+- If the "used_path" parameter is missing, it returns an error response with status code 400.
+- If the "used_path" is provided:
+  - In MongoDB: It initializes the user's data and adds the path to the "used_paths" array, ensuring no duplicates with the `$addToSet` operator.
+  - In PostgreSQL: It checks if the user already has a "used_paths" array. 
+  If so, it adds the new path to the array. If the user doesn't have "used_paths" stored yet, it creates a new record and stores the path in an array.
+- If any error occurs during the database operations, a 500 error is returned with an error message.
+
+This route is typically used to track the paths that a user has already used in the application, preventing redundant processing of the same paths.
+'''
 @app.route("/store-used-path", methods=["POST"])
 @jwt_required()
 def store_used_path():
@@ -943,7 +1121,28 @@ def store_used_path():
         return jsonify({"error": "Invalid database type"}), 400
 
 
+'''
+This route handles retrieving the list of "used_paths" associated with the authenticated user.
 
+Expected behavior:
+- The route receives a GET request and expects a valid JWT token for user authentication.
+- The "email" or "user_id" of the authenticated user is extracted from the JWT token.
+- The response contains a list of paths the user has already used, either from MongoDB or PostgreSQL.
+
+Database Handling:
+- In MongoDB:
+    - The function queries the "user_data_collection" for the document that matches the user's email.
+    - It checks if the "used_paths" field exists, and returns the list of paths if found.
+    - If no paths are found, it returns an empty list.
+  
+- In PostgreSQL:
+    - The function queries the "user_data" table to retrieve the "used_paths" array for the given email.
+    - If no paths are found, it returns an empty list.
+  
+- In either case, a successful response returns the list of used paths in a JSON object.
+
+If there is an issue with the database or the user data, the function will return an empty list.
+'''
 @app.route("/get-used-paths", methods=["GET"])
 @jwt_required()
 def get_used_paths():
