@@ -7,6 +7,7 @@ const HomePage = () => {
   const [items, setItems] = useState([]);
   const [envPath, setEnvPath] = useState([]);
   const [usedPath , setUsedPath] = useState([]);
+  const [reports , setReports] = useState([]);
   const navigate = useNavigate();
 
   const fetchUsedpath = async () => {
@@ -62,9 +63,29 @@ const HomePage = () => {
     }
   };
 
+  const fetchReports = async () => {
+    const token = localStorage.getItem("token");
+
+    try {
+          const response = await axios.get("http://localhost:5000/get-user-reports", {
+            headers: {
+              "Content-Type": "application/json",
+               Authorization: `Bearer ${token}`,
+            },
+          });
+          setReports(response.data.reports);
+        } catch (error) {
+           console.error("Error fetching reports:", error);
+           setReports([]);
+        }
+  };
+
   useEffect(() => {
     fetchUsedpath();
     fetchEnvPaths();
+    fetchReports();
+    console.log(reports);
+    
   }, []);
 
   function handleDashGo() {
@@ -73,43 +94,60 @@ const HomePage = () => {
       alert("Unauthorized access! Please log in again.");
       navigate("/signin");
     }
-    navigate("/dashboard");
+    navigate("/ExecutePage");
   }
 
   return (
     <div className="home_page_All">
       <div className="home_page_nav">
-        <button className="DashGoBtn" onClick={()=>{handleDashGo()}}>Go to Dashboard</button>
+        <button className="DashGoBtn" onClick={handleDashGo}>Go to Execute Page</button>
       </div>
       <div className="home_page_body">
-        <div className="home_page_URL_DIV">
-          {usedPath.map((path, index) => (
-                <div
-                  className="home_page_li_l_path"
-                  key={index}
-                >
-                  <span className="home_page_indexno">{path}</span>
-                </div>
-              ))}
-        </div>
-        <div className="home_page_env">
-          <h2><b>Your Environments</b></h2>
-          <div className="home_page_ul_l">
-            {items.map((item, index) => (
-              <div
-                className="home_page_li_l"
-                key={index}
-                style={item[1] === envPath[1] ? { backgroundColor: "burlywood" } : {}}
-              >
-                <span className="home_page_indexno">{index + 1}.</span>
-                <span className="home_page_name">{item[0]}</span>
-                
+        <div className="home_page_column">
+          <div className="home_page_URL_DIV">
+            <h1><b>Used paths </b></h1>
+            {usedPath.map((path, index) => (
+              <div className="home_page_li_l_path" key={index}>
+                <span className="home_page_indexno">{path}</span>
               </div>
             ))}
           </div>
+        </div>
+        <div className="home_page_column">
+          <div className="home_page_env">
+            <h2><b>Your Environments</b></h2>
+            <div className="home_page_ul_l">
+              {items.map((item, index) => (
+                <div
+                  className="home_page_li_l"
+                  key={index}
+                  style={item[1] === envPath[1] ? { backgroundColor: "burlywood" } : {}}
+                >
+                  <span className="home_page_indexno">{index + 1}.</span>
+                  <span className="home_page_name">{item[0]}</span>
+                </div>
+              ))}
+            </div>
           </div>
+        </div>
+        <div className="home_page_column">
+          <div className="home_page_report">
+            <h2 className="Reports-txt"><b>Reports</b></h2>
+            {reports.length !== 0 ? (
+              reports.map((item, index) => (
+                <div
+                  key={index}
+                  className="sidebar_item "
+                >
+                  {item.file_name || `Report ${index + 1}`}
+                </div>
+              ))
+            ) : (
+              <div className="p-2 h-10 border-b border-gray-600">No Reports Found</div>
+            )}
+          </div>
+        </div>
       </div>
-      
     </div>
   );
 };
