@@ -6,10 +6,11 @@ import VirtualEnvInput from "./VirtualEnvInput.jsx";
 import SettingsMenu from "./SettingsMenu";
 import ReportSave from "./ReportSave.jsx";
 import ReportShow from "./ReportShow.jsx";
-import './Dashboard.css'
+import './ExecutePage.css'
 import DisplayArguments from "./DisplayArguments.jsx";
 import {  useNavigate } from "react-router-dom";
-function Dashboard() {
+
+function ExecutePage() {
   const [path, setPath] = useState("");
   const [folderData, setFolderData] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -292,6 +293,8 @@ function Dashboard() {
   window.addEventListener("mousemove", handleMouseMove);
   window.addEventListener("mouseup", handleMouseUp);
 
+  
+
   return () => {
     divider?.removeEventListener("mousedown", handleMouseDown);
     window.removeEventListener("mousemove", handleMouseMove);
@@ -299,6 +302,16 @@ function Dashboard() {
   };
 }, []);
 
+function handleClickGoHomePage() {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Unauthorized access! Please log in again.");
+      localStorage.removeItem("token");
+      navigate("/signin");
+    } else {
+      navigate("/home_page");
+    }
+  }
   return (
     <>
     
@@ -314,7 +327,7 @@ function Dashboard() {
         <div className="nav">
         <div className="nav_one" style={{ display: "flex" }}>
           
-            <span className="hed">Test Execution GUI</span>
+            <span className="hed" onClick={()=>{handleClickGoHomePage()}}>Test Execution GUI</span>
             <div className="inputdev">
               <input
                 type="text"
@@ -399,4 +412,4 @@ function Dashboard() {
   );
 }
 
-export default Dashboard;
+export default ExecutePage;
