@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
-import Dashboard from "./Dashboard";
+import ExecutePage from "./ExecutePage";
 import HomePage from "./HomePage"
 
 import "./Authentication.css"
@@ -189,7 +189,7 @@ function App() {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/Forgot_Password" element={<Forgot_password />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/ExecutePage" element={<ExecutePage />} />
         <Route path="/reset" element={<Reset />} />
         <Route path="/home_page" element={<HomePage />} />
       </Routes>
