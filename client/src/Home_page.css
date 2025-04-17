@@ -56,9 +56,9 @@
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     color: black;
     max-height: 80vh;
+    overflow-y: auto;
 }
 
-/* Shared item style for used paths, environments, and reports */
 .home_page_li_l_path,
 .home_page_li_l,
 .sidebar_item {
